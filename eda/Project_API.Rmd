@@ -1,0 +1,359 @@
+---
+title: "Project"
+author: "Group 14"
+date: "April 24, 2017"
+output: html_document
+---
+
+```{r setup, warning=FALSE, message=F}
+library(jsonlite)
+library(stringr)
+library(tidyverse)
+library(readr)
+
+data <- read_csv('guardian_data.csv')
+getwd()
+
+
+```
+
+
+Get tract 
+```{r}
+row_to_url <- function(row){
+    # set the URL base
+    basestring = "https://www.broadbandmap.gov/broadbandmap/census/tract?"
+    endstring = "&format=json"
+    
+    x = paste0("latitude=", row$lat)
+    y = paste0("&", "longitude=", row$long)
+    
+    # create url string from base, coordinate, and end parts        
+    urlstring = paste0(basestring, x, y, endstring)
+    
+    return(urlstring)
+}
+
+row_to_url(data[5, ])
+```
+
+
+Now lets request some sample data. 
+```{r, cache=F}
+url_1 = row_to_url(data[1, ])
+url_1
+
+#We can use the `readLines( )` function to retrieve data from the API by calling `readLines(aURL)`.
+dat = readLines(url_1)
+dat
+
+#The value `dat` is in string format, we use the `jsonlite` to package to convert.
+datdf = fromJSON(dat)
+datdf
+
+#The Results can be accessed as follows.
+datdf$Results$censusTract
+
+#Fips
+datdf$Results$censusTract$fips
+
+#And there appears to be a useful location type field here.
+#datdf$results$geometry$location_type
+```
+
+
+
+Functions to run all at once
+```{r, warning=FALSE}
+get_and_parse <- function(urlstring) {
+    dat = readLines(urlstring)
+    datdf = fromJSON(dat)
+    return(datdf)
+}
+
+add_row <- function(df, jsndat, reqdat) {
+    # expects df to have columns [street, city, state, lat, lon, loctype]
+    # req dat is a row of data used for request [street, city, state]
+    resdf = data.frame(
+        name = reqdat$name,
+        age =  reqdat$age,
+        gender = reqdat$gender,               
+        raceethnicity = reqdat$raceethnicity,       
+        month = reqdat$month,              
+        day = reqdat$day,
+        year = reqdat$year,                
+        streetaddress = reqdat$streetaddress,      
+        city = reqdat$city,                
+        state = reqdat$state,              
+        classification = reqdat$classification,      
+        lawenforcementagency = reqdat$lawenforcementagency,
+        disposition = reqdat$disposition,          
+        lat = reqdat$lat,                 
+        long = reqdat$long,                
+        armed = reqdat$armed, 
+        state_fp = jsndat$Results$censusTract$stateFips,
+        geo_id = jsndat$Results$censusTract$fips,
+        census_tract = jsndat$Results$censusTract$name
+    )
+    return(rbind(df, resdf))
+}
+
+map_data <- function(df) {
+    # expects df to have columns [street, city, state]
+    # initialize a dataframe with appropriate columns using the first row of
+    # our request data
+    reqrow = df[1,]
+    print(reqrow)
+    
+    qryurl = row_to_url(reqrow)
+    print(qryurl)
+    jsndf = get_and_parse(qryurl)
+    print(jsndf)
+
+    newdf = data.frame(
+        name = reqrow$name,
+        age =  reqrow$age,
+        gender = reqrow$gender,               
+        raceethnicity = reqrow$raceethnicity,       
+        month = reqrow$month,              
+        day = reqrow$day,
+        year = reqrow$year,                
+        streetaddress = reqrow$streetaddress,      
+        city = reqrow$city,                
+        state = reqrow$state,              
+        classification = reqrow$classification,      
+        lawenforcementagency = reqrow$lawenforcementagency,
+        disposition = reqrow$disposition,          
+        lat = reqrow$lat,                 
+        long = reqrow$long,                
+        armed = reqrow$armed, 
+        state_fp = jsndf$Results$censusTract$stateFips,
+        geo_id = jsndf$Results$censusTract$fips,
+        census_tract = jsndf$Results$censusTract$name
+    )
+
+    # populate the dataframe with the rest of the request data
+    for (ix in 2:nrow(df)) {
+        tryCatch({
+            reqrow = df[ix, c("name","age","gender","raceethnicity","month","day","year","streetaddress","city","state",
+                          "classification","lawenforcementagency","disposition","lat","long","armed" )]
+
+            if (!is.null(reqrow[15]) | !is.null(reqrow[16])){
+                qryurl <-  row_to_url(reqrow)
+                jsndf <-  get_and_parse(qryurl)
+                newdf <-  add_row(newdf, jsndf, reqrow)
+            }
+        })
+    }
+
+    return(newdf)
+}
+
+#shortDatacomplete <- map_data(shortData)
+completeData <- map_data(data)
+```
+
+Adds a column to dataframe giving the county of incident using googles geocoding API
+```{r}
+countyFinder <- function(row){
+    
+    address <- row[1]
+    city <- row[2]
+    state <- row[3]
+    url <- paste0("https://maps.googleapis.com/maps/api/geocode/json?address=", address, ",+",
+                  city, ",+", state, "&key=AIzaSyAAo44VJYaam-_y4Hs7pZic5fUZUDGk53E")
+    
+    raw_json <- readLines(url)
+    
+    # turn the json into a nice list
+    info <- fromJSON(raw_json)
+    
+    # Get the first element of from the results list, and then the first componenent of address component
+    components <- info["results"][[1]][["address_components"]][[1]]
+    # Check component is not null
+    if(!is.null(components)){
+        # Check each elelement in address component to find the one that is listed as "administrative_area_level_2"
+        # This component will give us the county name for a given request
+        for (i in 1:nrow(components)){
+            if (str_detect(components[i,]["types"], "administrative_area_level_2")){
+                return(unlist(components[i,][["long_name"]]))
+            }
+        }
+    }
+}
+
+importantCols <- dplyr::select(data, streetaddress, city, state)
+counties <- apply(importantCols, 1, countyFinder)
+counties1 <- as.character(counties)
+completeData <- add_column(completeData,county = (counties1))
+```
+
+
+
+Now that we have tracts, we get demographic and finacial information using the census API
+```{r, warning=FALSE}
+#Initialize data frames for important variables
+medianIncomeByTract <- data.frame()
+
+
+# Create base url string
+    start_url <- 'http://api.census.gov/data/2015/acs5/profile?get='
+    end_url <- ',NAME&for=tract:*&in=state:'
+    key <- '&key=913ff64a27817f08554c0606053c0715f1de4a06'
+
+    
+# Get median Household Income    
+for (i in 1:56){
+      tryCatch({
+        medianIncomeJSON <- readLines(paste0(start_url,'DP03_0062E',end_url,i,key))
+        medianIncome <- fromJSON(medianIncomeJSON)
+        medianIncome <- data.frame(medianIncome)
+        medianIncome <- filter(medianIncome, X2 != 'NAME')
+        medianIncome <- mutate(medianIncome, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        medianIncome <- mutate(medianIncome, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        medianIncomeByTract <- rbind.data.frame(medianIncomeByTract, medianIncome)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+medianIncomeByTract <-  mutate(medianIncomeByTract,county = str_trim(county1))
+completeData <- left_join(completeData, medianIncomeByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'median_household_Income'
+
+
+```
+
+Now we find the demographics of each census tract by looking at the breakdown of race percentages. Note, we are not using all races listed on the census, and we are also double counting the people that identify as more than one race
+```{r, warning=FALSE}
+# Get percent white population  
+percentWhiteByTract <- data.frame()
+for (i in 1:56){
+      tryCatch({
+        percentWhiteJSON <- readLines(paste0(start_url,'DP05_0032PE',end_url,i,key))
+        percentWhite <- fromJSON(percentWhiteJSON)
+        percentWhite <- data.frame(percentWhite)
+        percentWhite <- filter(percentWhite, X2 != 'NAME')
+        percentWhite <- mutate(percentWhite, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentWhite <- mutate(percentWhite, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentWhiteByTract <- rbind.data.frame(percentWhiteByTract,percentWhite)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+percentWhiteByTract <-  mutate(percentWhiteByTract,county = str_trim(county1))
+completeData <- left_join(completeData, percentWhiteByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_white_population'
+```
+
+
+```{r, warning=FALSE}
+# Get percent black population  
+
+percentBlackByTract <- data.frame()
+for (i in 1:56){
+      tryCatch({
+        percentBlackJSON <- readLines(paste0(start_url,'DP05_0033PE',end_url,i,key))
+        percentBlack <- fromJSON(percentBlackJSON)
+        percentBlack <- data.frame(percentBlack)
+        percentBlack <- filter(percentBlack, X2 != 'NAME')
+        percentBlack <- mutate(percentBlack, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentBlack <- mutate(percentBlack, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentBlackByTract <- rbind.data.frame(percentBlackByTract,percentBlack)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+percentBlackByTract <-  mutate(percentBlackByTract,county = str_trim(county1))
+completeData <- left_join(completeData, percentBlackByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_black_population'
+```
+
+
+```{r, warning=FALSE}
+# Get percent Hispanic population  
+
+
+percentHispanicByTract <- data.frame()
+
+for (i in 1:56){
+      tryCatch({
+        percentHispanicJSON <- readLines(paste0(start_url,'DP05_0066PE',end_url,i,key))
+        percentHispanic <- fromJSON(percentHispanicJSON)
+        percentHispanic <- data.frame(percentHispanic)
+        percentHispanic <- filter(percentHispanic, X2 != 'NAME')
+        percentHispanic <- mutate(percentHispanic, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentHispanic <- mutate(percentHispanic, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentHispanicByTract <- rbind.data.frame(percentHispanicByTract,percentHispanic)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+percentHispanicByTract <-  mutate(percentHispanicByTract,county = str_trim(county1))
+completeData <- left_join(completeData, percentHispanicByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_hispanic_population'
+```
+
+```{r, warning=FALSE}
+percentHSGradsByTract <- data.frame()
+# Get percent of people aged 25 or older that are high school graduate or higher
+for (i in 1:56){
+      tryCatch({
+        percentHSGradsJSON <- readLines(paste0(start_url,'DP02_0066PE',end_url,i,key))
+        percentHSGrads <- fromJSON(percentHSGradsJSON)
+        percentHSGrads <- data.frame(percentHSGrads)
+        percentHSGrads <- filter(percentHSGrads, X2 != 'NAME')
+        percentHSGrads <- mutate(percentHSGrads, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentHSGrads <- mutate(percentHSGrads, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentHSGradsByTract <- rbind.data.frame(percentHSGradsByTract,percentHSGrads)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+percentHSGradsByTract <-  mutate(percentHSGradsByTract,county = str_trim(county1))
+completeData <- left_join(completeData, percentHSGradsByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_25_or_older_HighSchool_grads'
+```
+
+
+Write finished data set to csv
+```{r}
+write_csv(completeData, 'completeData.csv')
+```
+
+Add "Region" Variable to dataframe
+- Using 4 regions defined by the US Census Bureau
+```{r}
+completeData$region <- NA
+NE = c("ME","NH","VT","MA","RI","CT","NY","PA","NJ", "DE")
+MW = c("IL", "IN", "MI", "OH", "WI", "IA", "KS", "MN", "MO", "NE", "ND", "SD")
+South = c("FL", "GA", "MD", "NC", "SC", "VA", "DC", "WV", "AL", "KY", "MS", "TN", "AR", "LA", "OK", "TX")
+West = c("AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY", "AK", "CA", "HI", "OR", "WA")
+completeData$region[completeData$state %in% NE] = "Northeast"
+completeData$region[completeData$state %in% MW] = "Midwest"
+completeData$region[completeData$state %in% South] = "South"
+completeData$region[completeData$state %in% West] = "West"
+```
+
+Add Binary "Armed" Variable
+- 1 if yes (any type), 0 if no
+```{r}
+completeData$is_armed <- ifelse(completeData$armed == "No", 0, 1)
+```
+
+Add racial majority variables
+```{r}
+completeData$white_majority <- ifelse(completeData$percent_white_population >= 50, 1, 0)
+completeData$black_majority <- ifelse(completeData$percent_black_population >= 50, 1, 0)
+completeData$hispanic_majority <- ifelse(completeData$percent_hispanic_population >= 50, 1, 0)
+
+completeData <- mutate(completeData, in_majority = ifelse(completeData$raceethnicity == "White" & completeData$white_majority == 1, "Yes",
+                                  ifelse(completeData$raceethnicity == "Black" & completeData$black_majority == 1, "Yes",
+                                  ifelse(completeData$raceethnicity == "Hispanic/Latino" & completeData$hispanic_majority == 1, "Yes", "No"))))
+
+```
+
+Export a csv file
+```{r}
+write_csv(data, 'new_data.csv')
+```
+

@@ -1,0 +1,164 @@
+---
+title: "Presentation"
+author: "Group 14"
+date: "April 24, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(jsonlite)
+library(stringr)
+library(tidyverse)
+library(readr)
+
+
+data <- read_csv("14_data.csv")
+```
+
+
+####Plot 1  
+Slightly skewed indicating that younger people may be more likely to be killed by police.     
+```{r}
+data_age <- na.omit(select(data,age))
+ggplot(data_age) + geom_histogram(aes(x=age), fill = "#FF9999", color = "black", binwidth = 4) + 
+    ggtitle('Police Killings by Age') + labs(x = 'Age', y = '# of people killed by police') +
+    theme(panel.background = element_blank(), 
+          axis.line = element_line(colour = "black", size=.1))+
+    scale_x_continuous(breaks=c(0,20, 40, 60, 80),
+                       limits=c(0,90),
+                       expand=c(0, 1)) +
+    scale_y_continuous(breaks=c(0, 50, 100, 150),
+                       limits=c(0, 150),
+                       expand=c(0,0)) 
+```
+
+####Plot 2    
+```{r}
+race_count <- data %>% group_by(raceethnicity) %>% count()
+ggplot(race_count) + geom_bar(aes(x=raceethnicity, y=n), stat = "identity", fill="#FF9999") + 
+    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
+          panel.background = element_blank()) +
+    ggtitle('Police Killings by Race/Ethnicity') +
+    labs(x = 'Race/Ethnicity', y = '# of people killed by police')
+```
+
+####Plot 3  
+The distribution among race appears to be different for those who are unarmed than for all people.  
+```{r }
+race_count <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
+ggplot(race_count) + geom_bar(aes(x=raceethnicity, y=n), stat = "identity", fill="#FF9999") + 
+    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
+          panel.background = element_blank()) +
+    ggtitle('Police Killings of Unarmed People') +
+    labs(x = 'Race/Ethnicity', y = '# of people killed by police')
+```
+
+
+
+
+
+
+####Plot 4  
+There appears to be a cycle over the year.  
+
+```{r}
+date_count <- data %>% group_by(month_num) %>% count()
+ggplot(date_count) + 
+    geom_bar(aes(x=month_num, y=n), stat = "identity", fill="#FF9999") + 
+    ggtitle('Police Killings in 2015') +
+    labs(x = 'Month', y = '# of people killed by police') + 
+    theme(axis.line = element_line(colour = "black", size=.1), 
+          panel.background = element_blank()) +
+    scale_x_discrete(labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+```
+
+####Plot 5   
+```{r ,warning=FALSE}
+avgGrad <- data %>% group_by(state) %>% summarise(avgPercentHighSchoolGrad = mean(as.numeric(percent_25_or_older_HighSchool_grads), na.rm = TRUE))
+stateCount <- data %>% group_by(state) %>% summarise(DeathsPerState = n())
+gradsCount <- left_join(stateCount, avgGrad, by = c('state' = 'state'))
+
+
+ggplot(gradsCount) + 
+    geom_point(mapping = aes(x = avgPercentHighSchoolGrad, y = DeathsPerState), color="#FF9999") +
+    ggtitle('Death counts per state are higher in states with lower percentage graduation rates') +
+    theme(axis.line = element_line(colour = "black", size=.1), 
+          panel.background = element_blank()) +
+    labs(x = 'State average graduation rate', y = '# of people killed by police per state') 
+```
+
+####Plot 6 
+Males are killed by police much more often than females. 
+```{r}
+monthCount <- data %>% group_by(month, gender) %>% summarise(DeathsPerMonth = n())
+
+# plot the total number of deaths per month, and 
+ggplot(data) + geom_bar(mapping = aes(x=month, fill = gender )) + 
+    scale_fill_manual(values = c('hotpink', 'blue', 'green')) +
+    theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
+    ggtitle('Number of People Killed By Police Officers in 2015 by Month')
+```
+
+
+####Plot 7  
+Most police killings occurred in the South and the West.   
+```{r}
+region_count <- data %>% group_by(region) %>% count()
+ggplot(region_count) + 
+    geom_bar(aes(x=region, y=n), stat = "identity", fill="#FF9999") + 
+    ggtitle('Police Killings by Region') +
+    labs(x = 'Region', y = '# of people killed by police') + 
+    theme(axis.line = element_line(colour = "black", size=.1), 
+          panel.background = element_blank())
+```
+
+
+####Plot 8  
+```{r, warning=FALSE}
+Death_Type <- factor(data$classification)
+ggplot(data) + geom_boxplot(aes(x=classification, y=age, fill = Death_Type)) + ggtitle('Boxplot of Age per Death Type') +
+labs(x = 'Death Type', y = 'Age') + 
+scale_x_discrete(limit = c("Death in custody", "Gunshot", "Struck by vehicle", "Taser"))
+```
+
+
+***
+
+##Stats
+
+```{r}
+#Average age of those killed by police
+mean_age <- mean(na.omit(data$age))
+mean_age
+
+median_age <- median(na.omit(data$age))
+median_age
+
+#Average age of those killed by police - Race/Ecthnicity = White
+w_data <- data %>% filter(raceethnicity=="White")   
+mean_age_w <- mean(na.omit(w_data$age))
+mean_age_w
+
+#Average age of those killed by police - Race/Ecthnicity = Black
+b_data <- data %>% filter(raceethnicity=="Black")   
+mean_age_b <- mean(na.omit(b_data$age))
+mean_age_b
+
+#Average age of those killed by police - Race/Ecthnicity = Hispanic/Latino
+h_data <- data %>% filter(raceethnicity=="Hispanic/Latino")   
+mean_age_h <- mean(na.omit(h_data$age))
+mean_age_h
+
+#The mean age of those killed by police is younger for Race/Ethnicity = Black than White, and lowest for Hispanic/Latino
+
+
+
+#Data summary
+data_summary <- summary(data)
+
+```
+
+
+
+
+
