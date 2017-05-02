@@ -1,0 +1,45 @@
+---
+title: "get_lat_long"
+author: "group14"
+date: "May 1, 2017"
+output: html_document
+---
+
+```{r, errors = FALSE}
+library(RDSTK)
+count = 0
+latList <- c()
+longList <- c()
+countedData <- read_csv("the-counted-2015.csv") %>% filter(month=="December") %>% arrange(day) 
+
+for (i in 1:nrow(countedData)){
+    tryCatch({
+        street <- countedData[[i,9]]
+        state <- countedData[[i,11]]
+        city <- countedData[[i,10]]
+        if (!is.null(street) && !is.null(state) && !is.null(city)){
+            address <- str_c(street, " ", city, " ", state)
+            coords <- street2coordinates(address)
+            long <- coords$longitude
+            lat <- coords$latitude
+            if(!is.null(lat) && !is.null(long)){
+                latList <- c(latList, lat)
+                longList <- c(longList, long)
+            } else {
+                latList <- c(latList, 0)
+                longList <- c(longList, 0)
+            }
+        }else{
+            latList <- c(latList, 0)
+            longList <- c(longList, 0)
+        }
+    }, error = function(err){
+        count <<- count+1
+        latList <<- c(latList, 0)
+        longList <<- c(longList, 0)
+    })
+}
+countedData <- add_column(countedData, lat = latList, long = longList)
+write_csv(countedData,'decData.csv')
+# go into decData excel file and handcode lat and long that were entered as zeros. Data is later saved as decDataComplete
+```
