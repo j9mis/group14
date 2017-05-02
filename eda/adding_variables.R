@@ -1,3 +1,5 @@
+completeData <- read_csv('14_data.csv')
+
 # Add "Region" variable
 completeData$region <- NA
 NE = c("ME","NH","VT","MA","RI","CT","NY","PA","NJ", "DE")
