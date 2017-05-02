@@ -5,16 +5,17 @@ date: "April 24, 2017"
 output: html_document
 ---
 
+
 ```{r setup, warning=FALSE, message=F}
 library(jsonlite)
 library(stringr)
 library(tidyverse)
 library(readr)
-
-data <- read_csv('guardian_data.csv')
-getwd()
-
-
+data <- read_csv("guardian_data.csv")
+# guardian_data is missing part of December, but has lat/long information. We found a second data (the-counted-2015.csv) set with all of December, but is missing lat/long. We will use lat_long_finder.Rmd to get latitude and longitude for December of the countede data set, and then join December to the table contained in guardian data.
+data <- data %>%filter(month!="December")
+decData <- read_csv('decDataComplete.csv')
+data <- rbind(data,decData)
 ```
 
 
@@ -55,7 +56,7 @@ datdf
 datdf$Results$censusTract
 
 #Fips
-datdf$Results$censusTract$fips
+datdf$Results$censusTract['fips']
 
 #And there appears to be a useful location type field here.
 #datdf$results$geometry$location_type
@@ -87,7 +88,6 @@ add_row <- function(df, jsndat, reqdat) {
         state = reqdat$state,              
         classification = reqdat$classification,      
         lawenforcementagency = reqdat$lawenforcementagency,
-        disposition = reqdat$disposition,          
         lat = reqdat$lat,                 
         long = reqdat$long,                
         armed = reqdat$armed, 
@@ -103,13 +103,10 @@ map_data <- function(df) {
     # initialize a dataframe with appropriate columns using the first row of
     # our request data
     reqrow = df[1,]
-    print(reqrow)
-    
-    qryurl = row_to_url(reqrow)
-    print(qryurl)
-    jsndf = get_and_parse(qryurl)
-    print(jsndf)
 
+    qryurl = row_to_url(reqrow)
+    jsndf = get_and_parse(qryurl)
+    
     newdf = data.frame(
         name = reqrow$name,
         age =  reqrow$age,
@@ -123,7 +120,6 @@ map_data <- function(df) {
         state = reqrow$state,              
         classification = reqrow$classification,      
         lawenforcementagency = reqrow$lawenforcementagency,
-        disposition = reqrow$disposition,          
         lat = reqrow$lat,                 
         long = reqrow$long,                
         armed = reqrow$armed, 
@@ -135,10 +131,9 @@ map_data <- function(df) {
     # populate the dataframe with the rest of the request data
     for (ix in 2:nrow(df)) {
         tryCatch({
-            reqrow = df[ix, c("name","age","gender","raceethnicity","month","day","year","streetaddress","city","state",
-                          "classification","lawenforcementagency","disposition","lat","long","armed" )]
+            reqrow = df[ix, c("name","age","gender","raceethnicity","month","day","year","streetaddress","city","state", "classification","lawenforcementagency","lat","long","armed" )]
 
-            if (!is.null(reqrow[15]) | !is.null(reqrow[16])){
+            if (!is.null(reqrow[13]) | !is.null(reqrow[14])){
                 qryurl <-  row_to_url(reqrow)
                 jsndf <-  get_and_parse(qryurl)
                 newdf <-  add_row(newdf, jsndf, reqrow)
@@ -153,15 +148,16 @@ map_data <- function(df) {
 completeData <- map_data(data)
 ```
 
-Adds a column to dataframe giving the county of incident using googles geocoding API
+Adds a column to dataframe giving the county of incidentusing googles geocoding API
 ```{r}
 countyFinder <- function(row){
     
     address <- row[1]
     city <- row[2]
     state <- row[3]
+    googleKey <-'&key=AIzaSyDZ0xPO1ebMXg1p7KqvBtsUGp2lIbBJLTQ' ## User needs to add their own Google API Key here as string
     url <- paste0("https://maps.googleapis.com/maps/api/geocode/json?address=", address, ",+",
-                  city, ",+", state, "&key=AIzaSyAAo44VJYaam-_y4Hs7pZic5fUZUDGk53E")
+                  city, ",+", state, googleKey)
     
     raw_json <- readLines(url)
     
@@ -186,9 +182,14 @@ importantCols <- dplyr::select(data, streetaddress, city, state)
 counties <- apply(importantCols, 1, countyFinder)
 counties1 <- as.character(counties)
 completeData <- add_column(completeData,county = (counties1))
+write_csv(completeData, 'data_missing_counties.csv')
 ```
-
-
+Note: Some counties will appear ass null, preventing us from getting further information. From this point, we will hand code in the remaining counties that were left out. The file below has the hand entered data
+```{r}
+completeData <- read_csv('all_months_with_counties.csv')
+completeData <- mutate(completeData, census_tract = as.character(census_tract))
+completeData <- mutate(completeData, state_fp = as.character(state_fp))
+```
 
 Now that we have tracts, we get demographic and finacial information using the census API
 ```{r, warning=FALSE}
@@ -201,7 +202,7 @@ medianIncomeByTract <- data.frame()
     end_url <- ',NAME&for=tract:*&in=state:'
     key <- '&key=913ff64a27817f08554c0606053c0715f1de4a06'
 
-    
+     
 # Get median Household Income    
 for (i in 1:56){
       tryCatch({
@@ -216,8 +217,10 @@ for (i in 1:56){
         i <- i+1
     })
 }
-medianIncomeByTract <-  mutate(medianIncomeByTract,county = str_trim(county1))
-completeData <- left_join(completeData, medianIncomeByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+medianIncomeByTractTest <-  mutate(medianIncomeByTract,county = str_trim(county1), X3 = as.character(X3))
+medianIncomeByTractTest <-  mutate(medianIncomeByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, medianIncomeByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'median_household_Income'
 
 
@@ -229,7 +232,7 @@ Now we find the demographics of each census tract by looking at the breakdown of
 percentWhiteByTract <- data.frame()
 for (i in 1:56){
       tryCatch({
-        percentWhiteJSON <- readLines(paste0(start_url,'DP05_0032PE',end_url,i,key))
+        percentWhiteJSON <- readLines(paste0(start_url,'DP05_0072PE',end_url,i,key))
         percentWhite <- fromJSON(percentWhiteJSON)
         percentWhite <- data.frame(percentWhite)
         percentWhite <- filter(percentWhite, X2 != 'NAME')
@@ -240,8 +243,11 @@ for (i in 1:56){
         i <- i+1
     })
 }
-percentWhiteByTract <-  mutate(percentWhiteByTract,county = str_trim(county1))
-completeData <- left_join(completeData, percentWhiteByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+
+percentWhiteByTractTest <-  mutate(percentWhiteByTract,county = str_trim(county1), X3 = as.character(X3))
+percentWhiteByTractTest <-  mutate(percentWhiteByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentWhiteByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'percent_white_population'
 ```
 
@@ -263,8 +269,10 @@ for (i in 1:56){
         i <- i+1
     })
 }
-percentBlackByTract <-  mutate(percentBlackByTract,county = str_trim(county1))
-completeData <- left_join(completeData, percentBlackByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+percentBlackByTractTest <-  mutate(percentBlackByTract,county = str_trim(county1), X3 = as.character(X3))
+percentBlackByTractTest <-  mutate(percentBlackByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentBlackByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'percent_black_population'
 ```
 
@@ -288,10 +296,39 @@ for (i in 1:56){
         i <- i+1
     })
 }
-percentHispanicByTract <-  mutate(percentHispanicByTract,county = str_trim(county1))
-completeData <- left_join(completeData, percentHispanicByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+percentHispanicByTractTest <-  mutate(percentHispanicByTract,county = str_trim(county1), X3 = as.character(X3))
+percentHispanicByTractTest <-  mutate(percentHispanicByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentHispanicByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'percent_hispanic_population'
 ```
+
+```{r, warning = FALSE}
+# Get percent of population that is Native American
+percentNativeByTract <- data.frame()
+
+for (i in 1:56){
+      tryCatch({
+        percentNativeJSON <- readLines(paste0(start_url,'DP05_0074PE',end_url,i,key))
+        percentNative <- fromJSON(percentNativeJSON)
+        percentNative <- data.frame(percentNative)
+        percentNative <- filter(percentNative, X2 != 'NAME')
+        percentNative <- mutate(percentNative, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentNative <- mutate(percentNative, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentNativeByTract <- rbind.data.frame(percentNativeByTract,percentNative)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+
+percentNativeByTractTest <-  mutate(percentNativeByTract,county = str_trim(county1), X3 = as.character(X3))
+percentNativeByTractTest <-  mutate(percentNativeByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentNativeByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_native_population'
+
+```
+
 
 ```{r, warning=FALSE}
 percentHSGradsByTract <- data.frame()
@@ -309,51 +346,18 @@ for (i in 1:56){
         i <- i+1
     })
 }
-percentHSGradsByTract <-  mutate(percentHSGradsByTract,county = str_trim(county1))
-completeData <- left_join(completeData, percentHSGradsByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+percentHSGradsByTractTest <-  mutate(percentHSGradsByTract,county = str_trim(county1), X3 = as.character(X3))
+percentHSGradsByTractTest <-  mutate(percentHSGradsByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentHSGradsByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'percent_25_or_older_HighSchool_grads'
 ```
 
 
 Write finished data set to csv
 ```{r}
-write_csv(completeData, 'completeData.csv')
+write_csv(completeData, '14_data.csv')
+#completeData <- read_csv('14_data.csv')
 ```
 
-Add "Region" Variable to dataframe
-- Using 4 regions defined by the US Census Bureau
-```{r}
-completeData$region <- NA
-NE = c("ME","NH","VT","MA","RI","CT","NY","PA","NJ", "DE")
-MW = c("IL", "IN", "MI", "OH", "WI", "IA", "KS", "MN", "MO", "NE", "ND", "SD")
-South = c("FL", "GA", "MD", "NC", "SC", "VA", "DC", "WV", "AL", "KY", "MS", "TN", "AR", "LA", "OK", "TX")
-West = c("AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY", "AK", "CA", "HI", "OR", "WA")
-completeData$region[completeData$state %in% NE] = "Northeast"
-completeData$region[completeData$state %in% MW] = "Midwest"
-completeData$region[completeData$state %in% South] = "South"
-completeData$region[completeData$state %in% West] = "West"
-```
-
-Add Binary "Armed" Variable
-- 1 if yes (any type), 0 if no
-```{r}
-completeData$is_armed <- ifelse(completeData$armed == "No", 0, 1)
-```
-
-Add racial majority variables
-```{r}
-completeData$white_majority <- ifelse(completeData$percent_white_population >= 50, 1, 0)
-completeData$black_majority <- ifelse(completeData$percent_black_population >= 50, 1, 0)
-completeData$hispanic_majority <- ifelse(completeData$percent_hispanic_population >= 50, 1, 0)
-
-completeData <- mutate(completeData, in_majority = ifelse(completeData$raceethnicity == "White" & completeData$white_majority == 1, "Yes",
-                                  ifelse(completeData$raceethnicity == "Black" & completeData$black_majority == 1, "Yes",
-                                  ifelse(completeData$raceethnicity == "Hispanic/Latino" & completeData$hispanic_majority == 1, "Yes", "No"))))
-
-```
-
-Export a csv file
-```{r}
-write_csv(data, 'new_data.csv')
-```
 
