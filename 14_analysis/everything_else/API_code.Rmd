@@ -242,7 +242,7 @@ We find the demographics of each census tract by looking at the breakdown of rac
 percentWhiteByTract <- data.frame()
 for (i in 1:56){
       tryCatch({
-        percentWhiteJSON <- readLines(paste0(start_url,'DP05_0032PE',end_url,i,key))
+        percentWhiteJSON <- readLines(paste0(start_url,'DP05_0072PE',end_url,i,key))
         percentWhite <- fromJSON(percentWhiteJSON)
         percentWhite <- data.frame(percentWhite)
         percentWhite <- filter(percentWhite, X2 != 'NAME')
