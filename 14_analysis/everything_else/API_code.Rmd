@@ -5,18 +5,6 @@ date: "April 24, 2017"
 output: html_document
 ---
 
-# API Coding  
-We used three different APIs to add location and US Census data to our dataset.
-
-## APIs used  
-* **National Broadband Map Census API**   
-    + input latitude and longitude to return corresponding census tract  
-* **Google Maps API**  
-    + input address to return corresponding county  
-* **US Census API**   
-    + input state and county to return census data  
-
-
 ```{r setup, warning=FALSE, message=F}
 library(jsonlite)
 library(stringr)
@@ -28,6 +16,19 @@ getwd()
 
 
 ```
+
+
+# API Coding  
+We used three different APIs to add location and US Census data to our dataset.
+
+## APIs used  
+* **National Broadband Map Census API**   
+    + input latitude and longitude to return corresponding census tract  
+* **Google Maps API**  
+    + input address to return corresponding county  
+* **US Census API**   
+    + input state and county to return census data  
+
 
 
 ## National Broadband Map Census API    
