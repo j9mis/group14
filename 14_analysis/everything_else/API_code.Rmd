@@ -8,7 +8,7 @@ output: html_document
 # API Coding  
 We used three different APIs to add location and US Census data to our dataset.
 
-#### APIs used  
+## APIs used  
 * **National Broadband Map Census API**   
     + input latitude and longitude to return corresponding census tract  
 * **Google Maps API**  
