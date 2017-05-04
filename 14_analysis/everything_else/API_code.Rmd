@@ -30,7 +30,7 @@ getwd()
 ```
 
 
-##National Broadband Map Census API 
+##National Broadband Map Census API    
 This function uses writes a URL that requests the census tract of of a location given its latitude and longitude.  
 ```{r}
 row_to_url <- function(row){
@@ -164,7 +164,7 @@ completeData <- map_data(data)
 ```
 
 
-##Google Maps API
+##Google Maps API   
 This function requests a locations's county given its address and then adds it to the dataframe. 
 ```{r}
 countyFinder <- function(row){
@@ -202,8 +202,8 @@ completeData <- add_column(completeData,county = (counties1))
 
 
 
-##US Census API
-This followin functions request certain US Census data for each location in the dataset.  
+##US Census API    
+The following functions request certain US Census data for each location in the dataset.  
 ```{r, warning=FALSE}
 #Initialize data frames for important variables
 medianIncomeByTract <- data.frame()
@@ -332,4 +332,5 @@ Write finished data set to csv
 ```{r}
 write_csv(completeData, 'completeData.csv')
 ```
+
 
