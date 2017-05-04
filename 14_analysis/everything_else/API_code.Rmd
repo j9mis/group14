@@ -50,30 +50,6 @@ row_to_url <- function(row){
 ```
 
 
-Here we request some sample data. 
-```{r, cache=F}
-url_1 = row_to_url(data[1, ])
-url_1
-
-#We can use the `readLines( )` function to retrieve data from the API by calling `readLines(aURL)`.
-dat = readLines(url_1)
-dat
-
-#The value `dat` is in string format, we use the `jsonlite` to package to convert.
-datdf = fromJSON(dat)
-datdf
-
-#The Results can be accessed as follows.
-datdf$Results$censusTract
-
-#Fips
-datdf$Results$censusTract$fips
-
-#And there appears to be a useful location type field here.
-#datdf$results$geometry$location_type
-```
-
-
 The following functions run the API requests for every datapoint at once and adds the results to our dataframe. 
 ```{r, warning=FALSE}
 get_and_parse <- function(urlstring) {
