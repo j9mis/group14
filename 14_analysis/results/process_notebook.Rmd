@@ -4,4 +4,69 @@ author: "Group 14"
 date: "5/4/2017"
 output: html_document
 ---
+```{r setup, warning=FALSE, message=F}
+library(jsonlite)
+library(stringr)
+library(tidyverse)
+library(readr)
 
+data <- read_csv('14_data_3.csv')
+```
+
+
+```{r}
+race_count <- data %>% group_by(raceethnicity) %>% count()
+print(race_count)
+
+#Based on 2015 US Census data
+#took out arab because the Cenuss does not include it (counted as white sometimes)
+pop_2015 = 321418820
+
+
+asian_share = 0.056
+black_share = 0.133
+hispanic_share = 0.176
+native_share = 0.012
+white_share = 0.616
+
+
+per_million_counts <- function(race_count){
+    race_count$per_million <- NA
+for (i in 1:nrow(race_count)){
+if (race_count$raceethnicity[i] == "Asian/Pacific Islander"){
+    race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Asian/Pacific Islander"])*1000000)/(pop_2015*asian_share)
+} else if (race_count$raceethnicity[i] == "Black"){
+    race_count$per_million[i] =     ((race_count$n[race_count$raceethnicity=="Black"])*1000000)/(pop_2015*black_share)
+} else if (race_count$raceethnicity[i] == "Hispanic/Latino"){ 
+    race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Hispanic/Latino"])*1000000)/(pop_2015*hispanic_share)
+} else if (race_count$raceethnicity[i] == "Native American"){ 
+    race_count$per_million[i] = 
+((race_count$n[race_count$raceethnicity=="Native American"])*1000000)/(pop_2015*native_share)
+} else if (race_count$raceethnicity[i] == "White"){ 
+    race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="White"])*1000000)/(pop_2015*white_share)
+} else race_count$per_million[i] = NA       
+}
+    return(race_count)
+}
+
+
+race_count <- data %>% group_by(raceethnicity) %>% count()
+race_count <- per_million_counts(race_count)
+
+ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
+    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
+          panel.background = element_blank()) +
+    ggtitle('People Killed by Police by Race/Ethnicity') +
+    labs(x = 'Race/Ethnicity', y = '# killed (per million)')
+
+
+
+race_count_armed <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
+race_count_armed <- per_million_counts(race_count_armed)
+ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
+    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
+          panel.background = element_blank()) +
+    ggtitle('Unarmed People Killed by Police by Race/Ethnicity') +
+    labs(x = 'Race/Ethnicity', y = '# killed (per million)')
+
+```
