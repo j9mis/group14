@@ -5,6 +5,18 @@ date: "April 24, 2017"
 output: html_document
 ---
 
+#API Coding  
+We used three different APIs to add location and US Census data to our dataset.
+
+####APIs used  
+* **National Broadband Map Census API**   
+    + input latitude and longitude to return corresponding census tract  
+* **Google Maps API**  
+    + input address to return corresponding county  
+* **US Census API**   
+    + input state and county to return census data  
+
+
 ```{r setup, warning=FALSE, message=F}
 library(jsonlite)
 library(stringr)
@@ -18,7 +30,8 @@ getwd()
 ```
 
 
-Get tract 
+##National Broadband Map Census API 
+This function uses writes a URL that requests the census tract of of a location given its latitude and longitude.  
 ```{r}
 row_to_url <- function(row){
     # set the URL base
@@ -33,12 +46,10 @@ row_to_url <- function(row){
     
     return(urlstring)
 }
-
-row_to_url(data[5, ])
 ```
 
 
-Now lets request some sample data. 
+Here we request some sample data. 
 ```{r, cache=F}
 url_1 = row_to_url(data[1, ])
 url_1
@@ -62,8 +73,7 @@ datdf$Results$censusTract$fips
 ```
 
 
-
-Functions to run all at once
+The following functions run the API requests for every datapoint at once and adds the results to our dataframe. 
 ```{r, warning=FALSE}
 get_and_parse <- function(urlstring) {
     dat = readLines(urlstring)
@@ -153,7 +163,9 @@ map_data <- function(df) {
 completeData <- map_data(data)
 ```
 
-Adds a column to dataframe giving the county of incident using googles geocoding API
+
+##Google Maps API
+This function requests a locations's county given its address and then adds it to the dataframe. 
 ```{r}
 countyFinder <- function(row){
     
@@ -190,7 +202,8 @@ completeData <- add_column(completeData,county = (counties1))
 
 
 
-Now that we have tracts, we get demographic and finacial information using the census API
+##US Census API
+This followin functions request certain US Census data for each location in the dataset.  
 ```{r, warning=FALSE}
 #Initialize data frames for important variables
 medianIncomeByTract <- data.frame()
@@ -223,7 +236,7 @@ names(completeData)[names(completeData) == 'X1'] <- 'median_household_Income'
 
 ```
 
-Now we find the demographics of each census tract by looking at the breakdown of race percentages. Note, we are not using all races listed on the census, and we are also double counting the people that identify as more than one race
+We find the demographics of each census tract by looking at the breakdown of race percentages. Note, we are not using all races listed on the census, and we are also double counting the people that identify as more than one race.
 ```{r, warning=FALSE}
 # Get percent white population  
 percentWhiteByTract <- data.frame()
@@ -318,42 +331,5 @@ names(completeData)[names(completeData) == 'X1'] <- 'percent_25_or_older_HighSch
 Write finished data set to csv
 ```{r}
 write_csv(completeData, 'completeData.csv')
-```
-
-Add "Region" Variable to dataframe
-- Using 4 regions defined by the US Census Bureau
-```{r}
-completeData$region <- NA
-NE = c("ME","NH","VT","MA","RI","CT","NY","PA","NJ", "DE")
-MW = c("IL", "IN", "MI", "OH", "WI", "IA", "KS", "MN", "MO", "NE", "ND", "SD")
-South = c("FL", "GA", "MD", "NC", "SC", "VA", "DC", "WV", "AL", "KY", "MS", "TN", "AR", "LA", "OK", "TX")
-West = c("AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY", "AK", "CA", "HI", "OR", "WA")
-completeData$region[completeData$state %in% NE] = "Northeast"
-completeData$region[completeData$state %in% MW] = "Midwest"
-completeData$region[completeData$state %in% South] = "South"
-completeData$region[completeData$state %in% West] = "West"
-```
-
-Add Binary "Armed" Variable
-- 1 if yes (any type), 0 if no
-```{r}
-completeData$is_armed <- ifelse(completeData$armed == "No", 0, 1)
-```
-
-Add racial majority variables
-```{r}
-completeData$white_majority <- ifelse(completeData$percent_white_population >= 50, 1, 0)
-completeData$black_majority <- ifelse(completeData$percent_black_population >= 50, 1, 0)
-completeData$hispanic_majority <- ifelse(completeData$percent_hispanic_population >= 50, 1, 0)
-
-completeData <- mutate(completeData, in_majority = ifelse(completeData$raceethnicity == "White" & completeData$white_majority == 1, "Yes",
-                                  ifelse(completeData$raceethnicity == "Black" & completeData$black_majority == 1, "Yes",
-                                  ifelse(completeData$raceethnicity == "Hispanic/Latino" & completeData$hispanic_majority == 1, "Yes", "No"))))
-
-```
-
-Export a csv file
-```{r}
-write_csv(data, 'new_data.csv')
 ```
 
