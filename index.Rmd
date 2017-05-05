@@ -17,7 +17,14 @@ Group Members: [Janine Mis](https://github.com/j9mis), [Jessica Honabarger](http
 
 - all of the project material is on the [github repo](https://github.com/j9mis/group14) 
 
-
+# **Analysis**
+## **Exploratory Data Analysis***
+https://github.com/j9mis/group14/tree/master/eda
+## **Results**
+https://github.com/j9mis/group14/tree/master/14_analysis/results
+# **Blog Post**
+https://github.com/j9mis/group14/tree/master/14_blog
+# **Shiny App**
 
 
 
