@@ -31,7 +31,7 @@ Provide an overview of the project goals and the motivation for it. Consider tha
 # Related Work: 
 Anything that inspired you, such as a paper, a web site, or something we discussed in class.
 ```{r}
-
+  Recently, we are constantly being informed about news regarding police killings over various causes that lead to many controversies within the American public and media. Statements such as "Black Lives Matter," "I can't breathe," or even "Racism Kills" appear on many clothing apparel public signs, and bodies of the thousands of people who protest the streets of various cities in the United States due to certain police killings of unharmful individuals. There has been a recent rise in connection between social justice and public health. The protests and media outrage all strive for equal dignity and hope for a world in which everyone can live peacefully. Being part of the overall public health, we have the knowledge, data, and capacity to promote and analyze the social determination to work towards an economic, social, racial, and community justice that helps the current situation of our public health. Therefore, for our project, our group found and focused on data from 538's github page detailing a list of police killings as well as various pieces of background regarding the demographic and economic status of the location of incidents.
 ```
 
 
