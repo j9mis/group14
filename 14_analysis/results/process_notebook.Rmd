@@ -58,18 +58,29 @@ How did you reach these conclusions?
 ```
 
 
-# Final Analysis: 
-What did you learn about the data? 
-How did you answer the questions? 
-How can you justify your answers?
-```{r}
-
+## Time 
+The following plot shows the number of people killed by police during each month of 2015.  
+There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. 
+This could possibly be due to the nature of media coverage or the time of year. 
+```{r, echo = FALSE}
+date_count <- data %>% group_by(month_num) %>% count()
+ggplot(date_count) + 
+    geom_line(aes(x=month_num, y=n), color="#FF9999") +
+    geom_point(aes(x=month_num, y=n), stat = "identity") + 
+    ggtitle('Police Killings in 2015') +
+    labs(x = 'Month', y = '# of people killed by police') + 
+    theme(axis.line.x = element_line(color = "black", size=.1),
+        axis.line.y = element_line(color="black", size = .1), 
+          panel.background = element_blank()) +
+    scale_x_discrete(limits=c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"),
+                     labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
 ```
 
+## Age
 
+## Gender
 
-
-
+## Race 
 ```{r, echo=FALSE}
 pop_2015 = 321418820
 
@@ -97,8 +108,9 @@ per_million_counts <- function(race_count){
     }
     return(race_count)
 }
+```
 
-
+```{r, echo=FALSE}
 race_count <- data %>% group_by(raceethnicity) %>% count()
 race_count <- per_million_counts(race_count)
 # Make a histogram
@@ -107,9 +119,9 @@ ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat
           panel.background = element_blank()) +
     ggtitle('People Killed by Police by Race/Ethnicity') +
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
+```
 
-
-
+```{r, echo=FALSE}
 race_count_armed <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
 race_count_armed <- per_million_counts(race_count_armed)
 # Make a histogram
@@ -118,22 +130,22 @@ ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million)
           panel.background = element_blank()) +
     ggtitle('Unarmed People Killed by Police by Race/Ethnicity') +
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
-
 ```
 
 
+
+
+
+# Final Analysis: 
+What did you learn about the data? 
+How did you answer the questions? 
+How can you justify your answers?
 ```{r}
-date_count <- data %>% group_by(month_num) %>% count()
-ggplot(date_count) + 
-    geom_line(aes(x=month_num, y=n), color="#FF9999") +
-    geom_point(aes(x=month_num, y=n), stat = "identity") + 
-    ggtitle('Police Killings in 2015') +
-    labs(x = 'Month', y = '# of people killed by police') + 
-    theme(axis.line.x = element_line(color = "black", size=.1),
-        axis.line.y = element_line(color="black", size = .1), 
-          panel.background = element_blank()) +
-    scale_x_discrete(limits=c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"),
-                     labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
+
 ```
+
+
+
+
 
 
