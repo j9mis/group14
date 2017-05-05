@@ -43,6 +43,14 @@ What new questions did you consider in the course of your analysis?
 
 # Data: 
 Source, scraping method, cleanup, storage, etc.
+
+#### APIs
+* **National Broadband Map Census API**   
+    + input latitude and longitude to return corresponding census tract  
+* **Google Maps API**  
+    + input address to return corresponding county  
+* **US Census API**   
+    + input state and county to return census data 
 ```{r}
 
 ```
@@ -81,7 +89,8 @@ ggplot(date_count) +
 The graph below shows the age distribution of the US population. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.  
 <img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />
 
-Looking at the age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly.   
+Looking at the age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly.     
+From this graph, we also note how many more men are killed by police than women. 
 ```{r echo=FALSE, warning=FALSE}
 data_age <- na.omit(select(data,age,gender))
 ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position="dodge") + scale_fill_manual(values=c("Female"="#CC6699", "Male"="#6699CC", "Non-conforming"="#CC99FF")) +
@@ -162,6 +171,7 @@ How can you justify your answers?
 ```{r}
 
 ```
+
 
 
 
