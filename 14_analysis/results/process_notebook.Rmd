@@ -67,7 +67,7 @@ date_count <- data %>% group_by(month_num) %>% count()
 ggplot(date_count) + 
     geom_line(aes(x=month_num, y=n), color="#FF9999") +
     geom_point(aes(x=month_num, y=n), stat = "identity") + 
-    ggtitle('Police Killings in 2015') +
+    ggtitle('Police Killed by Police in 2015') +
     labs(x = 'Month', y = '# of people killed by police') + 
     theme(axis.line.x = element_line(color = "black", size=.1),
         axis.line.y = element_line(color="black", size = .1), 
@@ -78,10 +78,29 @@ ggplot(date_count) +
 
 ## Age
 
+The graph below shows the age distribution of the US population. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.  
+<img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />
+
+Looking at the age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly.   
+```{r echo=FALSE, warning=FALSE}
+data_age <- na.omit(select(data,age,gender))
+ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position="dodge") + scale_fill_manual(values=c("Female"="#CC6699", "Male"="#6699CC", "Non-conforming"="#CC99FF")) +
+    ggtitle('Age Distribution of People Killed by Police') + labs(x = 'Age', y = '# of people killed') +
+    theme(panel.background = element_blank(), 
+          axis.line = element_line(colour = "black", size=.1))+
+    scale_x_continuous(breaks=c(0,20, 40, 60, 80),
+                       limits=c(0,90),
+                       expand=c(0, 1)) +
+    scale_y_continuous(breaks=c(0, 50, 100, 150),
+                       limits=c(0, 150),
+                       expand=c(0,0)) 
+```
+
+
 ## Gender
 
 ## Race 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 pop_2015 = 321418820
 
 asian_share = 0.056
@@ -110,7 +129,7 @@ per_million_counts <- function(race_count){
 }
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 race_count <- data %>% group_by(raceethnicity) %>% count()
 race_count <- per_million_counts(race_count)
 # Make a histogram
@@ -121,7 +140,7 @@ ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 race_count_armed <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
 race_count_armed <- per_million_counts(race_count_armed)
 # Make a histogram
@@ -143,9 +162,6 @@ How can you justify your answers?
 ```{r}
 
 ```
-
-
-
 
 
 
