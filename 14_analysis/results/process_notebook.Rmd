@@ -44,13 +44,30 @@ What new questions did you consider in the course of your analysis?
 # Data: 
 Source, scraping method, cleanup, storage, etc.
 
-#### APIs
+### Sources
+
+* **[FiveThirtyEight](https://github.com/fivethirtyeight/data/tree/master/police-killings):**  
+We origionally chose our topic after stumbling upon the police killings dataset in FiveThirtyEight's github repository, however, this dataset only contained data for half of 2015. 
+
+* **[BuzzFeed](https://github.com/BuzzFeedNews/2015-12-fatal-police-shootings):**   
+We used a dataset from Buzzfeed's github repositrory that they obtained from the Guardian, however, this dataset was missing data after December 6th. 
+
+* **[The Guardian](https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/about-the-counted)**   
+We combined The Guardian's post December 7th data with out dataset. These last points were missing latitude and longidude variables, but we added them later.  
+
+
+### APIs
 * **National Broadband Map Census API**   
     + input latitude and longitude to return corresponding census tract  
 * **Google Maps API**  
     + input address to return corresponding county  
 * **US Census API**   
     + input state and county to return census data 
+    
+### Cleanup 
+
+
+
 ```{r}
 
 ```
@@ -66,7 +83,7 @@ How did you reach these conclusions?
 ```
 
 
-## Time 
+### Time 
 The following plot shows the number of people killed by police during each month of 2015.  
 There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. 
 This could possibly be due to the nature of media coverage or the time of year. 
@@ -84,7 +101,7 @@ ggplot(date_count) +
                      labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
 ```
 
-## Age
+### Age & Gender
 
 The graph below shows the age distribution of the US population. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.  
 <img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />
@@ -105,10 +122,7 @@ ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position
                        expand=c(0,0)) 
 ```
 
-
-## Gender
-
-## Race 
+### Race 
 ```{r, echo=FALSE, warning=FALSE}
 pop_2015 = 321418820
 
@@ -171,6 +185,8 @@ How can you justify your answers?
 ```{r}
 
 ```
+
+
 
 
 
