@@ -1,0 +1,124 @@
+---
+title: "14_blog"
+output: html_document
+https://idc9.github.io/stor390/
+By: Janine Mis, Jessica Honbarger, Akul Gupta
+
+#BLOG POST ANALYSIS OF RECENT POLICE KILLINGS
+
+
+  Recently, we are constantly being informed about news regarding police killings over various causes that lead to many controversies within the American public and media. Statements such as "Black Lives Matter," "I can't breathe," or even "Racism Kills" appear on many clothing apparel public signs, and bodies of the thousands of people who protest the streets of various cities in the United States due to certain police killings of unharmful individuals. There has been a recent rise in connection between social justice and public health. The protests and media outrage all strive for equal dignity and hope for a world in which everyone can live peacefully. Being part of the overall public health, we have the knowledge, data, and capacity to promote and analyze the social determination to work towards an economic, social, racial, and community justice that helps the current situation of our public health. 
+ 
+  Therefore, for our project, our group found data on 538's github page detailing a list of police killings as well as various pieces of background regarding the demographic and economic status of the location of incidents. We started out by analyzing the data and found that we overlooked that the data set only covered half of the year 2015. We then found a full data set from the Guardian that had information about all the killings in 2015, but lacked any background information other than location of incidents. We used those location of incidents provided by the original data set and the Google geocoding APIs to gather information about the county that the incidents occured in. Furthermor, we also used the National Broadband Map Census API, distributed by the Federal Communications Commission, to provide us information about the corresponding census tract. Once we had the county and tract info appended to the data set, we could use the census API to pull information from the 2015 census. We used an API to get information abotu each state and then joined it to our original data by a join matching the county and tract. We then added information about the median household income, the race proportions, and the educational attainment for the locations of each incident to our data set. However, we found that about 50 out of 1055 observations did not have county matches in the Google API, so we do not have census data for these. We plan to later investigate this problem more thoroughly. We added a region variable, a binary is_armed variable, a date variable, and an in_majority variable. 
+  
+  To carry out our analysis, we came up with a few questions of our own that we could explore by using the data set. Does the state average graduation rate correlate to the number of police killings per state? Can we predict the race of the victim based on some combination of the variables in the data set such as city income or age of victim? Is the cause of death related to whether or not the deceased was armed? How are victim demographics changing over time? Is a certain time of the year more likely to experience police killings than others? Does race and age have an affect on whether the victim was armed? 
+  
+  To further explore and analyze some of these questions, we created plots and a shiny app which illustrates a map that locates each incident with a pin mark. Clicking on a map marker in the shiny app gives you information regarding the victim about their name, age, and date of death. In regards to the plots, we wanted to analyze the distribution of the victim ages by creating a histogram of the age count for all victims. We found that the distribution was slightly skewed to the right indicating that younger individuals may be more likely to be involved and killed by police. A visualization of this histogram is the first plot below. We also wanted to analyze the number of people killed by the police per race through a bar graph. This visualization is the second plot illustrated below. We observed that whites were killed more than any other race at a large number of 527 when compared to the second most which were blacks killed at 266. However, we then plotted this same visualization but with victims who were unarmed. For this new unarmed plot, the number of blacks killed by the police was 68 which was fairly close to the number of whites killed by the police at 91. We could relate this to the recent protests of "Black Lives Matter" in which people outraged over unarmed blacks being killed by the police. In the fourth plot below, we tried to analyze if there was a relationship between state average graduation rate and number of people killed by the police per state. From this plot, we can conclude that as the state average graduation rate increases, the number of people killed by the police per state decreases. (Talk about outliers here). We can hypothesize that in an area of high education, there will be less police killings whereas in an area of low education, there will be more police killings since crime rates could possibly be high there. Furthermore, we wanted to analyze number of police killings per region and found that states in the Southern region of the United States, have the highest number of people killed by the police at 435 compared to the Western region, which as the second highest at 367, followed by the Midwest region at 162 and Northeast region at 91, respectively. This visualization is shown as the fifth plot below. Lastly, we created a boxplot to help us understand the range of victims ages per death type. We can observe that the death type, struck by vehicle, had the highest average age and greatest range of age. Police killing by gunshot had majority of ages between 25 and 50 with the lowest average age among all death types. To answer our question, of "Is a certain time of the year more likely to experience police killings than others?", we observed from our plot below (last plot), that most of the months in the year 2015 have close to the same amount of police killings except the month of December. The later months of the summer tend to have a high rate of police killings. July had the most at 122 while December had the least at only 14. 
+ 
+  (This next paragraph will talk about what shiny does)
+  after the appendix, we can have a link or code to shiny so people can play around with it. 
+  
+#Appendix
+
+```{r setup, include=FALSE}
+library(jsonlite)
+library(stringr)
+library(tidyverse)
+library(readr)
+
+
+data <- read_csv("14_data.csv")
+```
+
+
+
+#Plot_1
+```{r, echo = FALSE}
+
+data_age <- na.omit(select(data,age))
+ggplot(data_age) + geom_histogram(aes(x=age), fill = "#FF9999", color = "black", binwidth = 4) + 
+    ggtitle('Police Killings by Age') + labs(x = 'Age', y = '# of people killed by police') +
+    theme(panel.background = element_blank(), 
+          axis.line = element_line(colour = "black", size=.1))+
+    scale_x_continuous(breaks=c(0,20, 40, 60, 80),
+                       limits=c(0,90),
+                       expand=c(0, 1)) +
+    scale_y_continuous(breaks=c(0, 50, 100, 150),
+                       limits=c(0, 150),
+                       expand=c(0,0)) 
+```
+  
+  
+#Plot_2
+```{r, echo = FALSE}
+
+race_count <- data %>% group_by(raceethnicity) %>% count()
+ggplot(race_count) + geom_bar(aes(x=raceethnicity, y=n), stat = "identity", fill="#FF9999") + 
+    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
+          panel.background = element_blank()) +
+    ggtitle('Police Killings by Race/Ethnicity') +
+    labs(x = 'Race/Ethnicity', y = '# of people killed by police') + geom_text(aes(x=raceethnicity,y=n, label=n), hjust=0.5, vjust=-.5, colour="red") 
+```
+
+
+#Plot_3
+```{r, echo = FALSE }
+race_count <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
+ggplot(race_count) + geom_bar(aes(x=raceethnicity, y=n), stat = "identity", fill="#FF9999") + 
+    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
+          panel.background = element_blank()) +
+    ggtitle('Police Killings of Unarmed People') +
+    labs(x = 'Race/Ethnicity', y = '# of people killed by police') + geom_text(aes(x=raceethnicity,y=n, label=n), hjust=0.5, vjust=-.5, colour="red") 
+```
+  
+
+
+
+#Plot_4
+```{r ,warning=FALSE,, echo = FALSE}
+avgGrad <- data %>% group_by(state) %>% summarise(avgPercentHighSchoolGrad = mean(as.numeric(percent_25_or_older_HighSchool_grads), na.rm = TRUE))
+stateCount <- data %>% group_by(state) %>% summarise(DeathsPerState = n())
+gradsCount <- left_join(stateCount, avgGrad, by = c('state' = 'state'))
+
+
+ggplot(gradsCount) + 
+    geom_point(mapping = aes(x = avgPercentHighSchoolGrad, y = DeathsPerState), color="#FF9999") +
+    ggtitle('Death counts per state are higher in states with lower percentage graduation rates') +
+    theme(axis.line = element_line(colour = "black", size=.1), 
+          panel.background = element_blank()) +
+    labs(x = 'State average graduation rate', y = '# of people killed by police per state') 
+```
+
+
+#Plot_5
+```{r, echo = FALSE}
+region_count <- data %>% group_by(region) %>% count()
+ggplot(region_count) + 
+    geom_bar(aes(x=region, y=n), stat = "identity", fill="#FF9999") + 
+    ggtitle('Police Killings by Region') +
+    labs(x = 'Region', y = '# of people killed by police') + 
+    theme(axis.line = element_line(colour = "black", size=.1), 
+          panel.background = element_blank()) + geom_text(aes(x=region,y=n, label=n), hjust=0.5, vjust=-.5, colour="red") 
+```
+
+
+#Plot_6
+```{r, warning=FALSE, echo = FALSE}
+Death_Type <- factor(data$classification)
+ggplot(data) + geom_boxplot(aes(x=classification, y=age, fill = Death_Type)) + ggtitle('Boxplot of Age per Death Type') +
+labs(x = 'Death Type', y = 'Age') + 
+scale_x_discrete(limit = c("Death in custody", "Gunshot", "Struck by vehicle", "Taser"))
+```
+
+#Plot_7
+```{r, echo = FALSE}
+date_count <- data %>% group_by(month_num) %>% count()
+ggplot(date_count) + 
+    geom_bar(aes(x=month_num, y=n), stat = "identity", fill="#FF9999") + 
+    ggtitle('Police Killings in 2015') +
+    labs(x = 'Month', y = '# of people killed by police') + 
+    theme(axis.line = element_line(colour = "black", size=.1), 
+          panel.background = element_blank()) +
+    scale_x_discrete(labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) + geom_text(aes(x=month_num,y=n, label=n), hjust=0.5, vjust=-.5, colour="red") 
+```
+
