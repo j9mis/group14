@@ -11,11 +11,6 @@ library(tidyverse)
 library(readr)
 
 data <- read_csv('14_data_3.csv')
-
-# Take out unnecessary variables and put into a logical order 
-data <- select(data, name, age, gender, raceethnicity, month, day, year, date, region, streetaddress, city, state, 
-               lat, long, county, lawenforcementagency, classification, armed, is_armed, median_household_Income, percent_white_population, percent_black_population, percent_hispanic_population, percent_native_population, 
-in_majority, percent_25_or_older_HighSchool_grads)
 ```
 
 
@@ -69,3 +64,19 @@ ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million)
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
 
 ```
+
+
+```{r}
+date_count <- data %>% group_by(month_num) %>% count()
+ggplot(date_count) + 
+    geom_line(aes(x=month_num, y=n), color="#FF9999") +
+    geom_point(aes(x=month_num, y=n), stat = "identity") + 
+    ggtitle('Police Killings in 2015') +
+    labs(x = 'Month', y = '# of people killed by police') + 
+    theme(axis.line.x = element_line(color = "black", size=.1),
+        axis.line.y = element_line(color="black", size = .1), 
+          panel.background = element_blank()) +
+    scale_x_discrete(limits=c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"),
+                     labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
+```
+
