@@ -9,6 +9,8 @@ library(tidyverse)
 
 server <- function(input, output, session) {
     dataframe <- read_csv('14_data_3.csv') 
+    dataframe <- mutate(dataframe, median_household_Income = as.numeric(median_household_Income))
+    dataframe <- mutate(dataframe, percent_25_or_older_HighSchool_grads = as.numeric(percent_25_or_older_HighSchool_grads))
     names(dataframe)[names(dataframe) == 'name'] <- 'person_name'
  
     pop_2015 = 321418820
@@ -43,18 +45,51 @@ server <- function(input, output, session) {
     
     output$mymap <- renderLeaflet({
         var <- input$variableSelector
-        val <- input$factorSelector
-        data <- dataframe %>% filter_(interp(quote(column == value), column = as.name(var), value = val))
-        leaflet(data) %>%
-            addTiles() %>% addMarkers(~long, ~lat, popup = 
-            paste("Armed with: ", as.character(data$armed),
+        if ((var != "median_household_Income") && (var != "percent_25_or_older_HighSchool_grads")){
+            val <- input$factorSelector
+            data <- dataframe %>% filter_(interp(quote(column == value), column = as.name(var), value = val))
+            leaflet(data) %>%
+                addTiles() %>% addMarkers(~long, ~lat, popup = 
+                paste("Armed with: ", as.character(data$armed),
+                    "<br>Age: ", as.character(data$age),
+                    "<br>Race: ", as.character(data$raceethnicity),
+                    "<br>Date of incident: ", as.character(data$month), " ",
+                    as.character(dataframe$day), ", ", as.character(data$year) 
+                    
+                ) 
+            )
+        }else if (var == "median_household_Income"){
+            val1 = as.numeric(input$householdIncome[1])
+            val2 = as.numeric(input$householdIncome[2])
+            data <- dataframe %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+            data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
+            leaflet(data) %>%
+                addTiles() %>% addMarkers(~long, ~lat, popup = 
+                paste("Armed with: ", as.character(data$armed),
                 "<br>Age: ", as.character(data$age),
-                "<br>Race: ", as.character(data$raceethnicity),
-                "<br>Date of incident: ", as.character(data$month), " ",
-                as.character(dataframe$day), ", ", as.character(data$year) 
-                
-            ) 
-        )
+                 "<br>Race: ", as.character(data$raceethnicity),
+                 "<br>Date of incident: ", as.character(data$month), " ",
+                 as.character(dataframe$day), ", ", as.character(data$year),
+                "<br>Median Income of Location: ", as.character(data$median_household_Income), " "
+                )
+            )
+        }else if (var == "percent_25_or_older_HighSchool_grads"){
+                val1 = as.numeric(input$grad[1])
+                val2 = as.numeric(input$grad[2])
+                print(val1)
+                data <- dataframe %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
+                leaflet(data) %>%
+                    addTiles() %>% addMarkers(~long, ~lat, popup = 
+                            paste("Armed with: ", as.character(data$armed),
+                            "<br>Age: ", as.character(data$age),
+                            "<br>Race: ", as.character(data$raceethnicity),
+                            "<br>Date of incident: ", as.character(data$month), " ",
+                            as.character(dataframe$day), ", ", as.character(data$year),
+                            "<br>Percent Age 25+ That are Highschool grads: ", as.character(data$percent_25_or_older_HighSchool_grads), " "
+                             )
+                    )            
+            }
     })
     observe({
         x <- quote(input$variableSelector)
@@ -70,7 +105,6 @@ server <- function(input, output, session) {
     
     output$myplots <- renderPlot({
         xval <- input$xvalue
-        print(xval)
         if (xval == 'age'){
             ggplot(dataframe) + geom_histogram(aes_string(x=xval), fill = "blue", color = "black") +
             ggtitle('Histogram of Age')  +   theme(axis.text.x = element_text(angle = 60, hjust = 1))
