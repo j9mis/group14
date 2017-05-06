@@ -32,9 +32,15 @@ ui <- fluidPage(
                      selectInput("xvalue", label = h4("Select variable to create plot"),
                                  choices = list("Race/Ethnicity" = "raceethnicity", 
                                                 "Race/Ethnicity Normalized" = "normalizedrace",
-                                                "Month" = "month", "Armed" = "armed", "In Majority" = "in_majority",
+                                                "Median Household Income" = "median_household_Income",
+                                                "Month" = "month", "In Majority" = "in_majority",
                                                 "Is Armed" = "is_armed","Age" = "age"),
-                                 selected = 1)
+                                 selected = 1),
+                     conditionalPanel(
+                         condition = ("input.xvalue !=  'normalizedrace'"),
+                             checkboxInput("genderCheck", "Show genders", TRUE),
+                     verbatimTextOutput("genderValue")
+                     )
             )
         )
     )
