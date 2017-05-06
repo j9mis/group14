@@ -1,526 +1,147 @@
 ---
-title: "Final Project Analysis"
+title: "Adding Variables"
 author: "Group 14"
 date: "5/4/2017"
-output: 
-    html_document:
-        toc: true
-        toc_float: true
-        code.folding: hide 
+output: html_document
 ---
-```{r setup, warning=FALSE, message=F, echo=FALSE}
+
+```{r setup, warning=FALSE, message=F}
 library(jsonlite)
 library(stringr)
 library(tidyverse)
 library(readr)
-library(knitr)
 
-data <- read_csv('14_data_3.csv')
+data <- read_csv('guardian_data.csv')
+completeData <- read_csv("completeData.csv")
 ```
 
+# Adding Variables  
+We added a number of variables to help with our analysis and visualization. 
 
-# Abstract 
-One paragraph at the very beginning of the document summarizing everything.
+
+## "Region" variable  
+Divides the country into four regions.
 ```{r}
-
-```
-
-***
-
-# Overview and Motivation 
-Provide an overview of the project goals and the motivation for it. Consider that this will be read by people who did not see your project proposal.
-
-
-```{r}
-
-```
-
-***
-
-# Related Work 
-Anything that inspired you, such as a paper, a web site, or something we discussed in class.
-```{r}
-
-```
-
-***
-
-# Initial Questions 
-
-#### Who?  
-With this project, we wished to find out who police were killing.
-
-* Were police killing certain type of people disproportionately to others (age, gender, race)?   
-* Were unarmed victims demographically different from armed victims?      
-
-#### Where?  
-We also wanted to look into the locations in which these incidents took place.
-
-* What were the education and income levels of the areas in which people were killed by police?    
-* How did the race of the deceased compare to the racial makeup of the location in which they were killed?    
-
-#### Why?    
-We hoped to gain some interesting insight from exploring our data that other people would care about as well. 
-
-* Why should people care about this data?
-
-
-```{r}
-
-```
-
-***
-
-# Data 
-
-### Sources
-
-* **[FiveThirtyEight](https://github.com/fivethirtyeight/data/tree/master/police-killings):**  
-We origionally chose our topic after stumbling upon the police killings dataset in FiveThirtyEight's github repository, however, this dataset only contained data for half of 2015. 
-
-* **[BuzzFeed](https://github.com/BuzzFeedNews/2015-12-fatal-police-shootings):**   
-We used a dataset from Buzzfeed's github repositrory that they obtained from the Guardian, however, this dataset was missing data after December 6th. 
-
-* **[The Guardian](https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/about-the-counted)**   
-We combined The Guardian's post December 7th data with out dataset. These last points were missing latitude and longidude variables, but we added them later.  
-
-
-### APIs
-We wanted to gether information about the locations in which people were killed by police in 2015, so we utilized a combination of APIs. The first two APIs gave us the county and census tract of each incident. We chose to use census information about each census tract rather than each county so that the information applied to a smaller area more specific to each incident. We imput state and county information to return our desired census data and then joined the results to our dataset by state, county, and census tract. 
-
-#### Our APIs:   
-* **[National Broadband Map Census API](https://www.broadbandmap.gov/developer/api/census-api-by-coordinates)**  
-    + input latitude and longitude to return corresponding census tract  
-* **[Google Maps API](https://developers.google.com/maps/documentation/geocoding/intro)**   
-    + input address to return corresponding county  
-* **[US Census API](https://www.census.gov/data/developers/data-sets/acs-5year.html)**     
-    + input state and county to return census data 
+add_regions <- function(data){
+    data$region <- NA
     
-### Cleanup   
-Part of motivation for choosing the topic of this analysis came from the fact that most of the data had already been gathered and existed in a pretty clean dataset. We combined the three previously mentioned datasets and cleaned them to fit our needs. 
-
-#### Removing Variables          
-We began cleaning our data by removing the few variables with long text extries or entries in unusable formats. These variables included things such text descriptions of the incident, news repots, image files, and urls. 
-
-#### Adding Variables   
-Beyond using APIs to add variables based on location and US Census information, we added a few variables to help us better explore our data. These variables included "date", "region", "is_armed", and "in_majority". The code for these can be found [here](https://github.com/j9mis/group14/blob/master/14_analysis/everything_else/adding_variables.Rmd). 
-
-#### Missing Values  
-
-
-```{r}
-
-```
-
-***
-
-# Exploratory Data Analysis 
-Since we focused on creating a way for people to interact with our data rather than making inferences or predictions, our analysis consisted of making some simple plots and calulatings descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done. 
-```{r}
-
-```
-
-
-### Time 
-The following plot shows the number of people killed by police during each month of 2015.  
-There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. 
-This could possibly be due to the nature of media coverage or the time of year. 
-```{r, echo = FALSE}
-# PLOT OF DEATHS PER MONTH
-date_count <- data %>% group_by(month_num) %>% count()
-ggplot(date_count) + 
-    geom_line(aes(x=month_num, y=n), color="#FF9999") +
-    geom_point(aes(x=month_num, y=n), stat = "identity") + 
-    ggtitle('Police Killed by Police in 2015') +
-    labs(x = 'Month', y = '# of people killed by police') + 
-    theme(axis.line.x = element_line(color = "black", size=.1),
-        axis.line.y = element_line(color="black", size = .1), 
-          panel.background = element_blank()) +
-    scale_x_discrete(limits=c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"),
-                     labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
-```
-
-### Age & Gender
-
-The graph below shows the age distribution of the US population. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.  
-<img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
-  
+    NE = c("ME","NH","VT","MA","RI","CT","NY","PA","NJ", "DE")
+    MW = c("IL", "IN", "MI", "OH", "WI", "IA", "KS", "MN", "MO", "NE", "ND", "SD")
+    South = c("FL", "GA", "MD", "NC", "SC", "VA", "DC", "WV", "AL", "KY", "MS", "TN", "AR", "LA", "OK", "TX")
+    West = c("AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY", "AK", "CA", "HI", "OR", "WA")
     
-      
-        
-          
-            
-              
-Looking at the following age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly. From this graph, we also note how many more men are killed by police than women.  
-  
-```{r echo=FALSE, warning=FALSE}
-# HISTOGRAM OF AGE AND GENDER
-data_age <- na.omit(select(data,age,gender))
-ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position="dodge") + scale_fill_manual(values=c("Female"="#CC6699", "Male"="#6699CC", "Non-conforming"="#CC99FF")) +
-    ggtitle('Age Distribution of People Killed by Police') + labs(x = 'Age', y = '# of people killed') +
-    theme(panel.background = element_blank(), 
-          axis.line = element_line(colour = "black", size=.1))+
-    scale_x_continuous(breaks=c(0,20, 40, 60, 80),
-                       limits=c(0,90),
-                       expand=c(0, 1)) +
-    scale_y_continuous(breaks=c(0, 50, 100, 150),
-                       limits=c(0, 150),
-                       expand=c(0,0)) 
-```
-
-### Race 
-```{r, echo=FALSE, warning=FALSE}
-# FUNCTION TO TURN INTO PER MILLION COUNTS (NORMAILZES)
-pop_2015 = 321418820
-
-asian_share = 0.056
-black_share = 0.133
-hispanic_share = 0.176
-native_share = 0.012
-white_share = 0.616
-
-per_million_counts <- function(race_count){
-    race_count$per_million <- NA
-    for (i in 1:nrow(race_count)){
-        if (race_count$raceethnicity[i] == "Asian/Pacific Islander"){
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Asian/Pacific Islander"])*1000000)/(pop_2015*asian_share)
-        } else if (race_count$raceethnicity[i] == "Black"){
-            race_count$per_million[i] =     ((race_count$n[race_count$raceethnicity=="Black"])*1000000)/(pop_2015*black_share)
-        } else if (race_count$raceethnicity[i] == "Hispanic/Latino"){ 
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Hispanic/Latino"])*1000000)/(pop_2015*hispanic_share)
-        } else if (race_count$raceethnicity[i] == "Native American"){ 
-            race_count$per_million[i] = 
-                ((race_count$n[race_count$raceethnicity=="Native American"])*1000000)/(pop_2015*native_share)
-        } else if (race_count$raceethnicity[i] == "White"){ 
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="White"])*1000000)/(pop_2015*white_share)
-        } else race_count$per_million[i] = NA       
-    }
-    return(race_count)
+    data$region[data$state %in% NE] = "Northeast"
+    data$region[data$state %in% MW] = "Midwest"
+    data$region[data$state %in% South] = "South"
+    data$region[data$state %in% West] = "West"    
+    return(data)
 }
 ```
 
-```{r, echo=FALSE, results='asis'}
-# KABBLE BY RACE
-race_count <- data %>% group_by(raceethnicity) %>% count()
-race_count %>% arrange(desc(n)) %>% kable(col.names = c("Race/Ethnicity","Number of Deaths"), caption="Number of People Killed by Police by Race/Ethnicity")
-```
 
-
-
-```{r, echo=FALSE, warning=FALSE}
-# HISTOGRAM BY RACE PER MILLION
-race_count <- per_million_counts(race_count)
-# Make a histogram
-ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
-    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
-          panel.background = element_blank()) +
-    ggtitle('People Killed by Police by Race/Ethnicity') +
-    labs(x = 'Race/Ethnicity', y = '# killed (per million)')
-```
-
-
-```{r, echo=FALSE, results='asis'}
-# KABBLE ARMED BY RACE
-race_count_armed <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
-race_count_armed %>% arrange(desc(n)) %>% kable(col.names = c("Race/Ethnicity","Number of Deaths"), caption="Number of Unarmed People Killed by Police by Race/Ethnicity")
-```
-
-
-```{r, echo=FALSE, warning=FALSE}
-# HISTOGRAM ARMED BY RACE PER MILLION
-race_count_armed <- per_million_counts(race_count_armed)
-# Make a histogram
-ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
-    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
-          panel.background = element_blank()) +
-    ggtitle('Unarmed People Killed by Police by Race/Ethnicity') +
-    labs(x = 'Race/Ethnicity', y = '# killed (per million)')
-```
-
-### Location
-```{r}
-
-```
-
-
-
-***
-
-# Final Analysis 
-What did you learn about the data? 
-How did you answer the questions? 
-How can you justify your answers?
-```{r}
-
-```
-
-
-
-
-
-
-
-
----
-title: "Final Project Analysis"
-author: "Group 14"
-date: "5/4/2017"
-output: 
-    html_document:
-        toc: true
-        toc_float: true
-        code.folding: hide 
----
-```{r setup, warning=FALSE, message=F, echo=FALSE}
-library(jsonlite)
-library(stringr)
-library(tidyverse)
-library(readr)
-library(knitr)
-
-data <- read_csv('14_data_3.csv')
-```
-
-
-# Abstract 
-One paragraph at the very beginning of the document summarizing everything.
-```{r}
-
-```
-
-***
-
-# Overview and Motivation 
-Provide an overview of the project goals and the motivation for it. Consider that this will be read by people who did not see your project proposal.
-
-
-```{r}
-
-```
-
-***
-
-# Related Work 
-Anything that inspired you, such as a paper, a web site, or something we discussed in class.
-```{r}
-
-```
-
-***
-
-# Initial Questions 
-
-#### Who?  
-With this project, we wished to find out who police were killing.
-
-* Were police killing certain type of people disproportionately to others (age, gender, race)?   
-* Were unarmed victims demographically different from armed victims?      
-
-#### Where?  
-We also wanted to look into the locations in which these incidents took place.
-
-* What were the education and income levels of the areas in which people were killed by police?    
-* How did the race of the deceased compare to the racial makeup of the location in which they were killed?    
-
-#### Why?    
-We hoped to gain some interesting insight from exploring our data that other people would care about as well. 
-
-* Why should people care about this data?
-
-
-```{r}
-
-```
-
-***
-
-# Data 
-
-### Sources
-
-* **[FiveThirtyEight](https://github.com/fivethirtyeight/data/tree/master/police-killings):**  
-We origionally chose our topic after stumbling upon the police killings dataset in FiveThirtyEight's github repository, however, this dataset only contained data for half of 2015. 
-
-* **[BuzzFeed](https://github.com/BuzzFeedNews/2015-12-fatal-police-shootings):**   
-We used a dataset from Buzzfeed's github repositrory that they obtained from the Guardian, however, this dataset was missing data after December 6th. 
-
-* **[The Guardian](https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/about-the-counted)**   
-We combined The Guardian's post December 7th data with out dataset. These last points were missing latitude and longidude variables, but we added them later.  
-
-
-### APIs
-We wanted to gether information about the locations in which people were killed by police in 2015, so we utilized a combination of APIs. The first two APIs gave us the county and census tract of each incident. We chose to use census information about each census tract rather than each county so that the information applied to a smaller area more specific to each incident. We imput state and county information to return our desired census data and then joined the results to our dataset by state, county, and census tract. 
-
-#### Our APIs:   
-* **[National Broadband Map Census API](https://www.broadbandmap.gov/developer/api/census-api-by-coordinates)**  
-    + input latitude and longitude to return corresponding census tract  
-* **[Google Maps API](https://developers.google.com/maps/documentation/geocoding/intro)**   
-    + input address to return corresponding county  
-* **[US Census API](https://www.census.gov/data/developers/data-sets/acs-5year.html)**     
-    + input state and county to return census data 
-    
-### Cleanup   
-Part of motivation for choosing the topic of this analysis came from the fact that most of the data had already been gathered and existed in a pretty clean dataset. We combined the three previously mentioned datasets and cleaned them to fit our needs. 
-
-#### Removing Variables          
-We began cleaning our data by removing the few variables with long text extries or entries in unusable formats. These variables included things such text descriptions of the incident, news repots, image files, and urls. 
-
-#### Adding Variables   
-Beyond using APIs to add variables based on location and US Census information, we added a few variables to help us better explore our data. These variables included "date", "region", "is_armed", and "in_majority". The code for these can be found [here](https://github.com/j9mis/group14/blob/master/14_analysis/everything_else/adding_variables.Rmd). 
-
-#### Missing Values  
-
-
-```{r}
-
-```
-
-***
-
-# Exploratory Data Analysis 
-Since we focused on creating a way for people to interact with our data rather than making inferences or predictions, our analysis consisted of making some simple plots and calulatings descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done. 
-```{r}
-
-```
-
-
-### Time 
-The following plot shows the number of people killed by police during each month of 2015.  
-There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. 
-This could possibly be due to the nature of media coverage or the time of year. 
-```{r, echo = FALSE}
-# PLOT OF DEATHS PER MONTH
-date_count <- data %>% group_by(month_num) %>% count()
-ggplot(date_count) + 
-    geom_line(aes(x=month_num, y=n), color="#FF9999") +
-    geom_point(aes(x=month_num, y=n), stat = "identity") + 
-    ggtitle('Police Killed by Police in 2015') +
-    labs(x = 'Month', y = '# of people killed by police') + 
-    theme(axis.line.x = element_line(color = "black", size=.1),
-        axis.line.y = element_line(color="black", size = .1), 
-          panel.background = element_blank()) +
-    scale_x_discrete(limits=c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"),
-                     labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
-```
-
-### Age & Gender
-
-The graph below shows the age distribution of the US population. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.  
-<img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
-  
-    
-      
-        
-          
-            
-              
-Looking at the following age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly. From this graph, we also note how many more men are killed by police than women.  
-  
-```{r echo=FALSE, warning=FALSE}
-# HISTOGRAM OF AGE AND GENDER
-data_age <- na.omit(select(data,age,gender))
-ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position="dodge") + scale_fill_manual(values=c("Female"="#CC6699", "Male"="#6699CC", "Non-conforming"="#CC99FF")) +
-    ggtitle('Age Distribution of People Killed by Police') + labs(x = 'Age', y = '# of people killed') +
-    theme(panel.background = element_blank(), 
-          axis.line = element_line(colour = "black", size=.1))+
-    scale_x_continuous(breaks=c(0,20, 40, 60, 80),
-                       limits=c(0,90),
-                       expand=c(0, 1)) +
-    scale_y_continuous(breaks=c(0, 50, 100, 150),
-                       limits=c(0, 150),
-                       expand=c(0,0)) 
-```
-
-### Race 
-```{r, echo=FALSE, warning=FALSE}
-# FUNCTION TO TURN INTO PER MILLION COUNTS (NORMAILZES)
-pop_2015 = 321418820
-
-asian_share = 0.056
-black_share = 0.133
-hispanic_share = 0.176
-native_share = 0.012
-white_share = 0.616
-
-per_million_counts <- function(race_count){
-    race_count$per_million <- NA
-    for (i in 1:nrow(race_count)){
-        if (race_count$raceethnicity[i] == "Asian/Pacific Islander"){
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Asian/Pacific Islander"])*1000000)/(pop_2015*asian_share)
-        } else if (race_count$raceethnicity[i] == "Black"){
-            race_count$per_million[i] =     ((race_count$n[race_count$raceethnicity=="Black"])*1000000)/(pop_2015*black_share)
-        } else if (race_count$raceethnicity[i] == "Hispanic/Latino"){ 
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Hispanic/Latino"])*1000000)/(pop_2015*hispanic_share)
-        } else if (race_count$raceethnicity[i] == "Native American"){ 
-            race_count$per_million[i] = 
-                ((race_count$n[race_count$raceethnicity=="Native American"])*1000000)/(pop_2015*native_share)
-        } else if (race_count$raceethnicity[i] == "White"){ 
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="White"])*1000000)/(pop_2015*white_share)
-        } else race_count$per_million[i] = NA       
-    }
-    return(race_count)
+## "Armed" Variable
+Creates a binary variables about whether the victim was armed (1) or not (0). 
+```{r, warning=FALSE}
+add_armed <- function(data){
+    data$is_armed <- ifelse(data$armed == "No", 0, 1)
+    return(data)
 }
 ```
 
-```{r, echo=FALSE, results='asis'}
-# KABBLE BY RACE
-race_count <- data %>% group_by(raceethnicity) %>% count()
-race_count %>% arrange(desc(n)) %>% kable(col.names = c("Race/Ethnicity","Number of Deaths"), caption="Number of People Killed by Police by Race/Ethnicity")
-```
 
 
 
-```{r, echo=FALSE, warning=FALSE}
-# HISTOGRAM BY RACE PER MILLION
-race_count <- per_million_counts(race_count)
-# Make a histogram
-ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
-    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
-          panel.background = element_blank()) +
-    ggtitle('People Killed by Police by Race/Ethnicity') +
-    labs(x = 'Race/Ethnicity', y = '# killed (per million)')
-```
-
-
-```{r, echo=FALSE, results='asis'}
-# KABBLE ARMED BY RACE
-race_count_armed <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
-race_count_armed %>% arrange(desc(n)) %>% kable(col.names = c("Race/Ethnicity","Number of Deaths"), caption="Number of Unarmed People Killed by Police by Race/Ethnicity")
-```
-
-
-```{r, echo=FALSE, warning=FALSE}
-# HISTOGRAM ARMED BY RACE PER MILLION
-race_count_armed <- per_million_counts(race_count_armed)
-# Make a histogram
-ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
-    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
-          panel.background = element_blank()) +
-    ggtitle('Unarmed People Killed by Police by Race/Ethnicity') +
-    labs(x = 'Race/Ethnicity', y = '# killed (per million)')
-```
-
-### Location
+## Racial majority variables
+Creates variables indicating if the population of an area has a white, black, or hispanic majority.
 ```{r}
-
+add_majority <- function(data){
+    data$white_majority <- ifelse(data$percent_white_population >= 50, 1, 0)
+    data$black_majority <- ifelse(data$percent_black_population >= 50, 1, 0)
+    data$hispanic_majority <- ifelse(data$percent_hispanic_population >= 50, 1, 0)
+    
+    data <- mutate(data, in_majority = ifelse(data$raceethnicity == "White" 
+                                              & data$white_majority == 1, "Yes",
+                                              ifelse(data$raceethnicity == "Black" &
+                                                         data$black_majority == 1, "Yes",
+                                                     ifelse(data$raceethnicity == "Hispanic/Latino" 
+                                                            & data$hispanic_majority == 1, "Yes",
+                                                            ifelse(data$raceethnicity == "Unknown",
+                                                                   NA,
+                                                                   "No")))))
+    return(data)
+}
 ```
 
 
-
-***
-
-# Final Analysis 
-What did you learn about the data? 
-How did you answer the questions? 
-How can you justify your answers?
+## "Date" variable
+Creates a date variable that combines month, date, and year.
 ```{r}
+make_date <- function(data){
+    #format months
+data$month_num <- NA
+for (i in 1:nrow(data)){
+if (data$month[i] == "January"){
+    data$month_num[i] = "01"
+}else if (data$month[i] == "February"){
+    data$month_num[i] = "02"
+    }else if (data$month[i] == "March"){
+    data$month_num[i] = "03"
+    }else if (data$month[i] == "April"){
+    data$month_num[i] = "04"
+    }else if (data$month[i] == "May"){
+    data$month_num[i] = "05"
+    }else if (data$month[i] == "June"){
+    data$month_num[i] = "06"
+    }else if (data$month[i] == "July"){
+    data$month_num[i] = "07"
+    }else if (data$month[i] == "August"){
+    data$month_num[i] = "08"
+    }else if (data$month[i] == "September"){
+    data$month_num[i] = "09"
+    }else if (data$month[i] == "October"){
+    data$month_num[i] = "10"
+    }else if (data$month[i] == "November"){
+    data$month_num[i] = "11"
+} else 
+    data$month_num[i] = "12"
+}
+
+
+    #format days
+data$day_num <- NA
+for (i in 1:nrow(data)){
+if (data$day[i] == "1"){
+    data$day_num[i] = "01"
+}else if (data$day[i] == "2"){
+    data$day_num[i] = "02"
+    }else if (data$day[i] == "3"){
+    data$day_num[i] = "03"
+    }else if (data$day[i] == "4"){
+    data$day_num[i] = "04"
+    }else if (data$day[i] == "5"){
+    data$day_num[i] = "05"
+    }else if (data$day[i] == "6"){
+    data$day_num[i] = "06"
+    }else if (data$day[i] == "7"){
+    data$day_num[i] = "07"
+    }else if (data$day[i] == "8"){
+    data$day_num[i] = "08"
+    }else if (data$day[i] == "9"){
+    data$day_num[i] = "09"
+}else 
+    data$day_num[i] = as.character(data$day[i])
+}
+
+return(data)
+}
+
+
+#add date variable to dataframe
+add_date <- function(data){
+    date_data <- make_date(data)
+    data$date <- as.Date(paste(date_data$year, date_data$month_num, date_data$day_num, sep = "-" ))
+    return(data)
+}
+
 
 ```
-
-
-
-
-
-
-
-
