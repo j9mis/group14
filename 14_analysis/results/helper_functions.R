@@ -28,3 +28,51 @@ per_million_counts <- function(race_count){
     return(race_count)
 }
 
+## Find Lat/Long
+#Our data for December was missing the latitude and longitude for the incidents, so we created this function to add them to 
+#the dataframe. This function is designed to work on "the-counted-2015.csv" data set for the months of December.
+
+
+library(RDSTK)
+library(readr)
+library(dplyr)
+library(tibble)
+library(stringr)
+
+#data <- read_csv("the-counted-2015.csv")
+lat_long_finder <-function(data){
+    latList <- c()
+    longList <- c()
+    count = 0
+    for (i in 1:nrow(data)){
+        tryCatch({
+            street <- data$streetaddress[i]
+            state <- data$state[i]
+            city <- data$city[i]
+            if (!is.null(street) && !is.null(state) && !is.null(city)){
+                address <- str_c(street, " ", city, " ", state)
+                coords <- street2coordinates(address)
+                longitude <- coords$longitude
+                latitude <- coords$latitude
+                if(!is.null(latitude) && !is.null(longitude)){
+                    latList <- c(latList, latitude)
+                    longList <- c(longList, longitude)
+                } else {
+                    latList <- c(latList, 0)
+                    longList <- c(longList, 0)
+                }
+            }else{
+                latList <- c(latList, 0)
+                longList <- c(longList, 0)
+            }
+        }, error = function(err){
+            count <<- count+1
+            latList <<- c(latList, 0)
+            longList <<- c(longList, 0)
+        })
+    }
+    data <- add_column(data, lat = latList, long = longList)
+    return(data)
+}
+#data <- data[1:10,]
+#data <- lat_long_finder(data)
