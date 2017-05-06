@@ -111,10 +111,9 @@ server <- function(input, output, session) {
         xval <- input$xvalue
         if (xval == "normalizedrace"){
             ggplot(race_count) + geom_bar(aes(x = raceethnicity, y = per_million), stat="identity", fill = 16, color = "black")  +
-                theme(axis.text.x = element_text(angle = 60, hjust = 1), 
-                      panel.background = element_blank()) + 
+                theme(axis.text.x = element_text(angle = 60, hjust = 1), panel.background = element_blank()) + 
                 labs(y = "Police Killings per Million in 2015")
-        }
+        } else {
         if (input$genderCheck == FALSE){
                 if (xval == 'age'){
                     ggplot(dataframe) + geom_histogram(aes_string(x=xval), binwidth = 3, fill = 16, color = "black") +
@@ -168,6 +167,7 @@ server <- function(input, output, session) {
                         labs(y = "Number of Police Killings in 2015")
                 }
             }
+        }
 
     })
 }

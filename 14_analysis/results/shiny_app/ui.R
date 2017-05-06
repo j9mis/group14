@@ -9,7 +9,7 @@ ui <- fluidPage(
                                  choices = list("Median Income" = "median_household_Income",
                                                 "Percent age 25+ Highschool Graduates or Higher" = "percent_25_or_older_HighSchool_grads",
                                                 "Race/Ethnicity" = "raceethnicity", "Month" = "month",
-                                                "Armed" = "armed", "In Majority" = "in_majority", "Is Armed" = "is_armed"),
+                                                "Armed with:" = "armed", "In Majority" = "in_majority", "Is Armed (TRUE/FALSE)" = "is_armed"),
                                                  selected = 1),
                      conditionalPanel(
                          condition = "input.variableSelector == 'median_household_Income'",
@@ -38,8 +38,7 @@ ui <- fluidPage(
                                  selected = 1),
                      conditionalPanel(
                          condition = ("input.xvalue !=  'normalizedrace'"),
-                             checkboxInput("genderCheck", "Show genders", TRUE),
-                     verbatimTextOutput("genderValue")
+                             checkboxInput("genderCheck", "Show genders", TRUE)
                      )
             )
         )
