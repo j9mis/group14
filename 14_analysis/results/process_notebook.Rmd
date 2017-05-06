@@ -21,9 +21,8 @@ data <- read_csv('14_data_3.csv')
 
 # Abstract 
 One paragraph at the very beginning of the document summarizing everything.
-```{r}
 
-```
+This project aims to take the data that has been collected about the individuals who were killed by police officers in 2015, and create an interactive application that allows users to create a variety of visualizations with the data. This was accomplished by finding the data that had been previously collected for those killed in 2015 by the police. This data was then cleaned, and later supplemented by a number of demographic variables for the location in which each incident occurred. Additional variables were added by mutating existing variables, including ones to indicate if the victim was armed, or if they were in the racial majority. With this extended data, we built a shiny app with two main features, a map that filters by individuals who were killed based on an entered criteria, and another that creates a plot from the data using user input. This application is designed to let the user explore the data for themselves so that they may interact with it and reach their own conclusions based on what they find.
 
 ***
 
