@@ -139,7 +139,7 @@ server <- function(input, output, session) {
                     labs(y = "Number of Police Killings in 2015")
                 }
             }else{
-                if ((xval == "raceethnicity") || (xval == "in_majority")||(xval == "is_armed")){
+                if ((xval == "raceethnicity") || (xval == "in_majority")||(xval == "is_armed")||(xval == "armed")){
                     ggplot(dataframe) + geom_histogram(aes_string(x=xval, fill = 'gender'), stat = "count", color = "black") +
                         scale_fill_manual(values = c('hotpink', 'blue', 'green')) +
                         theme(axis.text.x = element_text(angle = 60, hjust = 1), 

@@ -34,7 +34,7 @@ ui <- fluidPage(
                                                 "Race/Ethnicity Normalized" = "normalizedrace",
                                                 "Median Household Income" = "median_household_Income",
                                                 "Month" = "month", "In Majority" = "in_majority",
-                                                "Is Armed" = "is_armed","Age" = "age"),
+                                                "Is Armed" = "is_armed","Armed with:" = "armed", "Age" = "age"),
                                  selected = 1),
                      conditionalPanel(
                          condition = ("input.xvalue !=  'normalizedrace'"),
