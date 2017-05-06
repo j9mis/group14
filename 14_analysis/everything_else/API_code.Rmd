@@ -64,11 +64,6 @@ We hoped to gain some interesting insight from exploring our data that other peo
 
 * Why should people care about this data?
 
-
-```{r}
-
-```
-
 ***
 
 # Data 
@@ -108,18 +103,10 @@ Beyond using APIs to add variables based on location and US Census information, 
 #### Missing Values  
 There were multiple missing values throughout the dataset, most often for "age", "gender", or "race". Some of these missing values were filled in in one of the three datasets when absent in another, so we entered these missing values by hand. The observations that still contained missing values were left in the dataset since we wanted to include every police killing recorded in 2015. The APIs failed to give us output for the counties of several locations, so we addressed this by manually finding the county via the "geo_id" (fips code) and the [internet](https://county-codes.findthedata.com). These counties were also confirmed by pinpointing the address on google maps and then locating the county on [http://www.usa.com/](http://www.usa.com/). We then reran our API code on these points to get US Census data based on these counties. 
 
-```{r}
-
-```
-
 ***
 
 # Exploratory Data Analysis 
-Since we focused on creating a way for people to interact with our data rather than making inferences or predictions, our analysis consisted of making some simple plots and calulatings descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done. 
-```{r}
-
-```
-
+Since we focused on creating a way for people to interact with our data rather than making inferences or predictions, our analysis consisted of making some simple plots and calulatings descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done.   
 
 ### Time 
 The following plot shows the number of people killed by police during each month of 2015.  
@@ -140,10 +127,10 @@ ggplot(date_count) +
                      labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
 ```
 
-### Age & Gender
+### Age & Gender  
 
-The graph below shows the age distribution of the US population. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.  
-<img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
+The graph below shows the age distribution of the US population in 2010. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.    
+> <img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
   
     
       
@@ -167,6 +154,42 @@ ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position
                        limits=c(0, 150),
                        expand=c(0,0)) 
 ```
+
+
+The median age of the US population in 2015 was reportedly [37.8](https://www.statista.com/statistics/241494/median-age-of-the-us-population/) years old while the median age of pepople killed by police in 2015 was 35. The following table shows the median age of people killed by police by race compared to the 2015 median age of each race.
+
+Race/Ethnicity          |  Killed by Police | US Population
+------------------------|-------------------|--------------  
+White                   |  39               | 43   
+Hispanic                |  31               | 28
+Black                   |  31               | 33  
+Asian/Pacific Islander  |  38               | 36
+Native American         |  33               | 33
+
+
+```{r, echo=FALSE, eval=FALSE}
+median(na.omit(data$age))
+White <- filter(data, raceethnicity == "White")
+Black <- filter(data, raceethnicity == "Black")
+Hispanic_Latino <- filter(data, raceethnicity == "Hispanic/Latino")
+Asian_Pacific_Islander <- filter(data, raceethnicity == "Asian/Pacific Islander")
+Native_American <- filter(data, raceethnicity == "Native American")
+Arab_American <- filter(data, raceethnicity == "Arab-American")
+Other <- filter(data, raceethnicity == "Other")
+
+median(na.omit(White$age))
+median(na.omit(Black$age))
+median(na.omit(Hispanic_Latino$age))
+median(na.omit(Asian_Pacific_Islander$age))
+median(na.omit(Native_American$age))
+median(na.omit(Arab_American$age))
+median(na.omit(Other$age))
+```
+
+
+
+
+
 
 ### Race 
 ```{r, echo=FALSE, warning=FALSE}
@@ -238,10 +261,66 @@ ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million)
 ```
 
 ### Location
-```{r}
 
+> <img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Distribution_of_Annual_Household_Income_in_the_United_States_2010.png" width="700" height="350" /> 
+
+
+```{r, echo=FALSE, warning=FALSE}
+# HISTOGRAM OF INCOME
+data$median_household_Income <- as.numeric(data$median_household_Income)
+data_income <- na.omit(select(data,median_household_Income))
+ggplot(data_income) + geom_histogram(aes(x=median_household_Income), binwidth = 5000, fill="#FF9999", color= "white") + 
+    ggtitle('Median Household Incomes in Areas Where People Were Killed by Police') + labs(x = 'Median Household Income of Census Tract ($)' , y = '# of people killed') +
+    theme(panel.background = element_blank(), 
+          axis.line = element_line(colour = "black", size=.1))+
+    scale_x_continuous(breaks=c(0,25000, 50000, 75000, 100000, 125000, 150000),
+                       limits=c(0,175000),
+                       expand=c(0, 1)) +
+    scale_y_continuous(breaks=c(0, 50, 100, 150),
+                       limits=c(0, 150),
+                       expand=c(0,0)) 
 ```
 
+
+The median household income in the US in 2015 was \$55,775 according to the [2015 Census](https://www.census.gov/content/dam/Census/library/publications/2016/demo/acsbr15-02.pdf). The median median household income of the locations where people were killed by police in 2015 was \$43,629.
+```{r, echo=FALSE, eval=FALSE, warning=FALSE}
+median_median_income <- median(na.omit(as.numeric(data$median_household_Income)))
+print(median_median_income)
+```
+
+
+
+
+```{r, warning=FALSE, echo=FALSE}
+# HISTOGRAM OF EDUCATION
+data$percent_25_or_older_HighSchool_grads <- as.numeric(data$percent_25_or_older_HighSchool_grads)
+data_grads <- na.omit(select(data,percent_25_or_older_HighSchool_grads))
+ggplot(data_grads) + geom_histogram(aes(x=percent_25_or_older_HighSchool_grads), binwidth = 2.5, fill="#FF9999", color= "white") + 
+    ggtitle('Education Levels in Areas Where People Were Killed by Police') + labs(x = 'Percent of Population over 25 with a Highschool Diploma (%)' , y = '# of people killed') +
+    theme(panel.background = element_blank(), 
+          axis.line = element_line(colour = "black", size=.1))+
+    scale_x_continuous(breaks=c(20, 40, 60, 80, 100),
+                       limits=c(20,105),
+                       expand=c(0, 1)) +
+    scale_y_continuous(breaks=c(0, 50, 100, 150),
+                       limits=c(0, 150),
+                       expand=c(0,0)) 
+```
+
+
+
+
+Deceased in Majority?   | Percentage
+------------------------|------------  
+Yes                     | 59.08%
+No                      | 37.36%
+Unknown                 | 03.56%
+```{r echo=FALSE, warning=FALSE, eval=FALSE}
+# TABLE OF IN MAJORITY
+nrow(filter(data, in_majority=="Yes"))/nrow(data)
+nrow(filter(data, in_majority=="No"))/nrow(data) 
+nrow(filter(data, is.na(in_majority)))/nrow(data) 
+```
 
 
 ***
@@ -253,6 +332,8 @@ How can you justify your answers?
 ```{r}
 
 ```
+
+
 
 
 
