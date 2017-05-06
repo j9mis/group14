@@ -1,49 +1,62 @@
 ---
-title: "process_notebook"
+title: "Final Project Analysis"
 author: "Group 14"
 date: "5/4/2017"
-output: html_document
+output: 
+    html_document:
+        toc: true
+        toc_float: true
+        code.folding: hide 
 ---
 ```{r setup, warning=FALSE, message=F, echo=FALSE}
 library(jsonlite)
 library(stringr)
 library(tidyverse)
 library(readr)
+library(knitr)
 
 data <- read_csv('14_data_3.csv')
 ```
 
 
-# Abstract: 
+# Abstract 
 One paragraph at the very beginning of the document summarizing everything.
 ```{r}
 
 ```
 
+***
 
-# Overview and Motivation: 
+# Overview and Motivation 
 Provide an overview of the project goals and the motivation for it. Consider that this will be read by people who did not see your project proposal.
 
-  In recent media, more and more time and reporting have been dedicated to the topic of police actions. In the recent years, one of the topics that has gained media coverage significantly is deaths at the hands of the US police. Due to this recent surge of interest people have begun to collect more and more data about those that have been killed by poilice, as well as the details surrounding the incident. One such data set has been gathered by The Guardian as a supplement to an ongoing news story they call "The Counted". This data set has information regarding every reported incident of a person that was killed by a police officer in the years 2015 and 2016. Due to time restrictions and cleanliness of the data, we decided to choose to work with the 2015 data set.      
-  The data that The Guardian provided had information about the deceased, including their name, race, age, and location at death. We decided to take this data set, and add a sense of background to each incident by adding information about the mendian income, high school education rate, and demographic makeup of the area in which the incident occurred. This was done using the 2015 census data for the census tract that corresponded to the location in the data.    
-  Because our data set was so limited, we did not feel comfortable performing statistical analysis. Instead, we thought it would be more interesting to create an application that allows a user to explore the data for themselves and see the different patterns that emerge. So with this data set we set our goal was to create a Shiny application that will allow a user to interact with our data frame and create a variety of visualizations with the data. We accomplished this by first exploring the data ourselves to find some plots that we thouught were interesting. We then allowed the Shiny application we created to have the functionality to be able to create these plots and more. Alongside the graph maker, the application also has the ablility to show a United States map that shows the locations of each incident. This map has the ability to filter out points based on user selection. This means a user can easily view those who was armed with a firearm at their death, or those who were classified as Hispanic, or just who was killed in July with a simple drop down selection menu.    
-  We feel that this project has a strong sense of cultural significance. Police killings is a major issue that is in hot debate currently, and to create an unbiased application that allows a user to come to their own conclusions seems to be a worthwhile effort. 
 
-# Related Work: 
-Anything that inspired you, such as a paper, a web site, or something we discussed in class.
 ```{r}
-  Recently, we are constantly being informed about news regarding police killings over various causes that lead to many controversies within the American public and media. Statements such as "Black Lives Matter," "I can't breathe," or even "Racism Kills" appear on many clothing apparel public signs, and bodies of the thousands of people who protest the streets of various cities in the United States due to certain police killings of unharmful individuals. There has been a recent rise in connection between social justice and public health. The protests and media outrage all strive for equal dignity and hope for a world in which everyone can live peacefully. Being part of the overall public health, we have the knowledge, data, and capacity to promote and analyze the social determination to work towards an economic, social, racial, and community justice that helps the current situation of our public health. Therefore, for our project, our group found and focused on data from 538's github page detailing a list of police killings as well as various pieces of background regarding the demographic and economic status of the location of incidents.
+
 ```
 
+***
 
-# Initial Questions: 
+# Related Work 
+Anything that inspired you, such as a paper, a web site, or something we discussed in class.
+```{r}
+
+```
+
+***
+
+# Initial Questions 
 What questions are you trying to answer? 
 How did these questions evolve over the course of the project? 
 What new questions did you consider in the course of your analysis? 
 
+```{r}
 
-# Data: 
-Source, scraping method, cleanup, storage, etc.
+```
+
+***
+
+# Data 
 
 ### Sources
 
@@ -58,11 +71,14 @@ We combined The Guardian's post December 7th data with out dataset. These last p
 
 
 ### APIs
-* **National Broadband Map Census API**   
+We wanted to gether information about the locations in which people were killed by police in 2015, so we utilized a combination of APIs. The first two APIs gave us the county and census tract of each incident. We chose to use census information about each census tract rather than each county so that the information applied to a smaller area more specific to each incident. We imput state and county information to return our desired census data and then joined the results to our dataset by state, county, and census tract. 
+
+#### Our APIs:   
+* **[National Broadband Map Census API](https://www.broadbandmap.gov/developer/api/census-api-by-coordinates)**  
     + input latitude and longitude to return corresponding census tract  
-* **Google Maps API**  
+* **[Google Maps API](https://developers.google.com/maps/documentation/geocoding/intro)**   
     + input address to return corresponding county  
-* **US Census API**   
+* **[US Census API](https://www.census.gov/data/developers/data-sets/acs-5year.html)**     
     + input state and county to return census data 
     
 ### Cleanup 
@@ -73,12 +89,10 @@ We combined The Guardian's post December 7th data with out dataset. These last p
 
 ```
 
+***
 
-# Exploratory Data Analysis: 
-What visualizations did you use to look at your data in different ways? 
-What are the different statistical methods you considered? 
-Justify the decisions you made, and show any major changes to your ideas. 
-How did you reach these conclusions?
+# Exploratory Data Analysis 
+Since we focused on creating a way for people to interact with our data rather than making inferences or predictions, our analysis consisted of making some simple plots and calulatings descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done. 
 ```{r}
 
 ```
@@ -89,6 +103,7 @@ The following plot shows the number of people killed by police during each month
 There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. 
 This could possibly be due to the nature of media coverage or the time of year. 
 ```{r, echo = FALSE}
+# PLOT OF DEATHS PER MONTH
 date_count <- data %>% group_by(month_num) %>% count()
 ggplot(date_count) + 
     geom_line(aes(x=month_num, y=n), color="#FF9999") +
@@ -105,11 +120,18 @@ ggplot(date_count) +
 ### Age & Gender
 
 The graph below shows the age distribution of the US population. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.  
-<img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />
-
-Looking at the age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly.     
-From this graph, we also note how many more men are killed by police than women. 
+<img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
+  
+    
+      
+        
+          
+            
+              
+Looking at the following age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly. From this graph, we also note how many more men are killed by police than women.  
+  
 ```{r echo=FALSE, warning=FALSE}
+# HISTOGRAM OF AGE AND GENDER
 data_age <- na.omit(select(data,age,gender))
 ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position="dodge") + scale_fill_manual(values=c("Female"="#CC6699", "Male"="#6699CC", "Non-conforming"="#CC99FF")) +
     ggtitle('Age Distribution of People Killed by Police') + labs(x = 'Age', y = '# of people killed') +
@@ -125,6 +147,7 @@ ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position
 
 ### Race 
 ```{r, echo=FALSE, warning=FALSE}
+# FUNCTION TO TURN INTO PER MILLION COUNTS (NORMAILZES)
 pop_2015 = 321418820
 
 asian_share = 0.056
@@ -153,8 +176,16 @@ per_million_counts <- function(race_count){
 }
 ```
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, echo=FALSE, results='asis'}
+# KABBLE BY RACE
 race_count <- data %>% group_by(raceethnicity) %>% count()
+race_count %>% arrange(desc(n)) %>% kable(col.names = c("Race/Ethnicity","Number of Deaths"), caption="Number of People Killed by Police by Race/Ethnicity")
+```
+
+
+
+```{r, echo=FALSE, warning=FALSE}
+# HISTOGRAM BY RACE PER MILLION
 race_count <- per_million_counts(race_count)
 # Make a histogram
 ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
@@ -164,8 +195,16 @@ ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
 ```
 
-```{r, echo=FALSE, warning=FALSE}
+
+```{r, echo=FALSE, results='asis'}
+# KABBLE ARMED BY RACE
 race_count_armed <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
+race_count_armed %>% arrange(desc(n)) %>% kable(col.names = c("Race/Ethnicity","Number of Deaths"), caption="Number of Unarmed People Killed by Police by Race/Ethnicity")
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+# HISTOGRAM ARMED BY RACE PER MILLION
 race_count_armed <- per_million_counts(race_count_armed)
 # Make a histogram
 ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
@@ -177,15 +216,18 @@ ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million)
 
 
 
+***
 
-
-# Final Analysis: 
+# Final Analysis 
 What did you learn about the data? 
 How did you answer the questions? 
 How can you justify your answers?
 ```{r}
 
 ```
+
+
+
 
 
 
