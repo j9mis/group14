@@ -38,9 +38,8 @@ In recent media, more and more time and reporting have been dedicated to the top
 
 # Related Work 
 Anything that inspired you, such as a paper, a web site, or something we discussed in class.
-```{r}
 
-```
+Our main inspiration for this project was the project that is currently being taken on by The Guardian. ["The Counted"](https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/the-counted-police-killings-us-database) aims to publicize the details of every individual who has been killed by a police officer within the last two years. The Guardian has made some already incredible visualizations with the data, and their work created a sense of interest in our group. So we took the data that they had been working with, and decided to supplement it with a range of demographic informations. This allowed us to also create a numer of visualizations, but also allowed us to differentiate ourselves by adding addtional information to be able to explore.
 
 ***
 
