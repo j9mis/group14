@@ -1,345 +1,310 @@
 ---
-title: "Final Project Analysis"
+title: "Project"
 author: "Group 14"
-date: "5/4/2017"
-output: 
-    html_document:
-        toc: true
-        toc_float: true
-        code.folding: hide 
+date: "April 24, 2017"
+output: html_document
 ---
-```{r setup, warning=FALSE, message=F, echo=FALSE}
+
+```{r setup, warning=FALSE, message=F}
 library(jsonlite)
 library(stringr)
 library(tidyverse)
 library(readr)
-library(knitr)
 
-data <- read_csv('14_data_3.csv')
+data <- read_csv('guardian_data.csv')
 ```
 
 
-# Abstract 
-One paragraph at the very beginning of the document summarizing everything.
-```{r}
+# API Coding  
+We used three different APIs to add location and US Census data to our dataset.
 
-```
-
-***
-
-# Overview and Motivation 
-Provide an overview of the project goals and the motivation for it. Consider that this will be read by people who did not see your project proposal.
-
-
-In recent media, more and more time and reporting have been dedicated to the topic of police actions. In the recent years, one of the topics that has gained media coverage significantly is deaths at the hands of the US police. Due to this recent surge of interest people have begun to collect more and more data about those that have been killed by poilice, as well as the details surrounding the incident. One such data set has been gathered by The Guardian as a supplement to an ongoing news story they call "The Counted". This data set has information regarding every reported incident of a person that was killed by a police officer in the years 2015 and 2016. Due to time restrictions and cleanliness of the data, we decided to choose to work with the 2015 data set.      
- -  The data that The Guardian provided had information about the deceased, including their name, race, age, and location at death. We decided to take this data set, and add a sense of background to each incident by adding information about the mendian income, high school education rate, and demographic makeup of the area in which the incident occurred. This was done using the 2015 census data for the census tract that corresponded to the location in the data.    
- -  Because our data set was so limited, we did not feel comfortable performing statistical analysis. Instead, we thought it would be more interesting to create an application that allows a user to explore the data for themselves and see the different patterns that emerge. So with this data set we set our goal was to create a Shiny application that will allow a user to interact with our data frame and create a variety of visualizations with the data. We accomplished this by first exploring the data ourselves to find some plots that we thouught were interesting. We then allowed the Shiny application we created to have the functionality to be able to create these plots and more. Alongside the graph maker, the application also has the ablility to show a United States map that shows the locations of each incident. This map has the ability to filter out points based on user selection. This means a user can easily view those who was armed with a firearm at their death, or those who were classified as Hispanic, or just who was killed in July with a simple drop down selection menu.    
- -  We feel that this project has a strong sense of cultural significance. Police killings is a major issue that is in hot debate currently, and to create an unbiased application that allows a user to come to their own conclusions seems to be a worthwhile effort. 
-
-***
-
-# Related Work 
-Anything that inspired you, such as a paper, a web site, or something we discussed in class.
-```{r}
-
-```
-
-***
-
-# Initial Questions 
-
-#### Who?  
-With this project, we wished to find out who police were killing.
-
-* Were police killing certain type of people disproportionately to others (age, gender, race)?   
-* Were unarmed victims demographically different from armed victims?      
-
-#### Where?  
-We also wanted to look into the locations in which these incidents took place.
-
-* What were the education and income levels of the areas in which people were killed by police?    
-* How did the race of the deceased compare to the racial makeup of the location in which they were killed?    
-
-#### Why?    
-We hoped to gain some interesting insight from exploring our data that other people would care about as well. 
-
-* Why should people care about this data?
-
-***
-
-# Data 
-
-### Sources
-
-* **[FiveThirtyEight](https://github.com/fivethirtyeight/data/tree/master/police-killings):**  
-We origionally chose our topic after stumbling upon the police killings dataset in FiveThirtyEight's github repository, however, this dataset only contained data for half of 2015. 
-
-* **[BuzzFeed](https://github.com/BuzzFeedNews/2015-12-fatal-police-shootings):**   
-We used a dataset from Buzzfeed's github repositrory that they obtained from the Guardian, however, this dataset was missing data after December 6th. 
-
-* **[The Guardian](https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/about-the-counted)**   
-We combined The Guardian's post December 7th data with out dataset. These last points were missing latitude and longidude variables, but we added them later.  
-
-
-### APIs
-We wanted to gether information about the locations in which people were killed by police in 2015, so we utilized a combination of APIs. The first two APIs gave us the county and census tract of each incident. We chose to use census information about each census tract rather than each county so that the information applied to a smaller area more specific to each incident. We imput state and county information to return our desired census data and then joined the results to our dataset by state, county, and census tract. The code for this process can be found [here](https://github.com/j9mis/group14/blob/master/14_analysis/everything_else/API_code.Rmd).   
-
-#### Our APIs:   
-* **[National Broadband Map Census API](https://www.broadbandmap.gov/developer/api/census-api-by-coordinates)**  
+## APIs used  
+* **National Broadband Map Census API**   
     + input latitude and longitude to return corresponding census tract  
-* **[Google Maps API](https://developers.google.com/maps/documentation/geocoding/intro)**   
+* **Google Maps API**  
     + input address to return corresponding county  
-* **[US Census API](https://www.census.gov/data/developers/data-sets/acs-5year.html)**     
-    + input state and county to return census data 
+* **US Census API**   
+    + input state and county to return census data  
+
+
+
+## National Broadband Map Census API    
+This function uses writes a URL that requests the census tract of of a location given its latitude and longitude.  
+```{r}
+row_to_url <- function(row){
+    # set the URL base
+    basestring = "https://www.broadbandmap.gov/broadbandmap/census/tract?"
+    endstring = "&format=json"
     
-### Cleanup   
-Part of motivation for choosing the topic of this analysis came from the fact that most of the data had already been gathered and existed in a pretty clean dataset. We combined the three previously mentioned datasets and cleaned them to fit our needs. 
-
-#### Removing Variables          
-We began cleaning our data by removing the few variables with long text extries or entries in unusable formats. These variables included things such text descriptions of the incident, news repots, image files, and urls. 
-
-#### Adding Variables   
-Beyond using APIs to add variables based on location and US Census information, we added a few variables to help us better explore our data. These variables included "date", "region", "is_armed", and "in_majority". The code for these can be found [here](https://github.com/j9mis/group14/blob/master/14_analysis/everything_else/adding_variables.Rmd). 
-
-#### Missing Values  
-There were multiple missing values throughout the dataset, most often for "age", "gender", or "race". Some of these missing values were filled in in one of the three datasets when absent in another, so we entered these missing values by hand. The observations that still contained missing values were left in the dataset since we wanted to include every police killing recorded in 2015. The APIs failed to give us output for the counties of several locations, so we addressed this by manually finding the county via the "geo_id" (fips code) and the [internet](https://county-codes.findthedata.com). These counties were also confirmed by pinpointing the address on google maps and then locating the county on [http://www.usa.com/](http://www.usa.com/). We then reran our API code on these points to get US Census data based on these counties. 
-
-***
-
-# Exploratory Data Analysis 
-Since we focused on creating a way for people to interact with our data rather than making inferences or predictions, our analysis consisted of making some simple plots and calulatings descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done.   
-
-### Time 
-The following plot shows the number of people killed by police during each month of 2015.  
-There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. 
-This could possibly be due to the nature of media coverage or the time of year. 
-```{r, echo = FALSE}
-# PLOT OF DEATHS PER MONTH
-date_count <- data %>% group_by(month_num) %>% count()
-ggplot(date_count) + 
-    geom_line(aes(x=month_num, y=n), color="#FF9999") +
-    geom_point(aes(x=month_num, y=n), stat = "identity") + 
-    ggtitle('Police Killed by Police in 2015') +
-    labs(x = 'Month', y = '# of people killed by police') + 
-    theme(axis.line.x = element_line(color = "black", size=.1),
-        axis.line.y = element_line(color="black", size = .1), 
-          panel.background = element_blank()) +
-    scale_x_discrete(limits=c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"),
-                     labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
-```
-
-### Age & Gender  
-
-The graph below shows the age distribution of the US population in 2010. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.    
-> <img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
-  
+    x = paste0("latitude=", row$lat)
+    y = paste0("&", "longitude=", row$long)
     
-      
-        
-          
-            
-              
-Looking at the following age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly. From this graph, we also note how many more men are killed by police than women.  
-  
-```{r echo=FALSE, warning=FALSE}
-# HISTOGRAM OF AGE AND GENDER
-data_age <- na.omit(select(data,age,gender))
-ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position="dodge") + scale_fill_manual(values=c("Female"="#CC6699", "Male"="#6699CC", "Non-conforming"="#CC99FF")) +
-    ggtitle('Age Distribution of People Killed by Police') + labs(x = 'Age', y = '# of people killed') +
-    theme(panel.background = element_blank(), 
-          axis.line = element_line(colour = "black", size=.1))+
-    scale_x_continuous(breaks=c(0,20, 40, 60, 80),
-                       limits=c(0,90),
-                       expand=c(0, 1)) +
-    scale_y_continuous(breaks=c(0, 50, 100, 150),
-                       limits=c(0, 150),
-                       expand=c(0,0)) 
-```
-
-
-The median age of the US population in 2015 was reportedly [37.8](https://www.statista.com/statistics/241494/median-age-of-the-us-population/) years old while the median age of pepople killed by police in 2015 was 35. The following table shows the median age of people killed by police by race compared to the 2015 median age of each race.
-
-Race/Ethnicity          |  Killed by Police | US Population
-------------------------|-------------------|--------------  
-White                   |  39               | 43   
-Hispanic                |  31               | 28
-Black                   |  31               | 33  
-Asian/Pacific Islander  |  38               | 36
-Native American         |  33               | 33
-
-
-```{r, echo=FALSE, eval=FALSE}
-median(na.omit(data$age))
-White <- filter(data, raceethnicity == "White")
-Black <- filter(data, raceethnicity == "Black")
-Hispanic_Latino <- filter(data, raceethnicity == "Hispanic/Latino")
-Asian_Pacific_Islander <- filter(data, raceethnicity == "Asian/Pacific Islander")
-Native_American <- filter(data, raceethnicity == "Native American")
-Arab_American <- filter(data, raceethnicity == "Arab-American")
-Other <- filter(data, raceethnicity == "Other")
-
-median(na.omit(White$age))
-median(na.omit(Black$age))
-median(na.omit(Hispanic_Latino$age))
-median(na.omit(Asian_Pacific_Islander$age))
-median(na.omit(Native_American$age))
-median(na.omit(Arab_American$age))
-median(na.omit(Other$age))
-```
-
-
-
-
-
-
-### Race 
-```{r, echo=FALSE, warning=FALSE}
-# FUNCTION TO TURN INTO PER MILLION COUNTS (NORMAILZES)
-pop_2015 = 321418820
-
-asian_share = 0.056
-black_share = 0.133
-hispanic_share = 0.176
-native_share = 0.012
-white_share = 0.616
-
-per_million_counts <- function(race_count){
-    race_count$per_million <- NA
-    for (i in 1:nrow(race_count)){
-        if (race_count$raceethnicity[i] == "Asian/Pacific Islander"){
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Asian/Pacific Islander"])*1000000)/(pop_2015*asian_share)
-        } else if (race_count$raceethnicity[i] == "Black"){
-            race_count$per_million[i] =     ((race_count$n[race_count$raceethnicity=="Black"])*1000000)/(pop_2015*black_share)
-        } else if (race_count$raceethnicity[i] == "Hispanic/Latino"){ 
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Hispanic/Latino"])*1000000)/(pop_2015*hispanic_share)
-        } else if (race_count$raceethnicity[i] == "Native American"){ 
-            race_count$per_million[i] = 
-                ((race_count$n[race_count$raceethnicity=="Native American"])*1000000)/(pop_2015*native_share)
-        } else if (race_count$raceethnicity[i] == "White"){ 
-            race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="White"])*1000000)/(pop_2015*white_share)
-        } else race_count$per_million[i] = NA       
-    }
-    return(race_count)
+    # create url string from base, coordinate, and end parts        
+    urlstring = paste0(basestring, x, y, endstring)
+    
+    return(urlstring)
 }
 ```
 
-```{r, echo=FALSE, results='asis'}
-# KABBLE BY RACE
-race_count <- data %>% group_by(raceethnicity) %>% count()
-race_count %>% arrange(desc(n)) %>% kable(col.names = c("Race/Ethnicity","Number of Deaths"), caption="Number of People Killed by Police by Race/Ethnicity")
+
+The following functions run the API requests for every datapoint at once and adds the results to our dataframe. 
+```{r, warning=FALSE}
+get_and_parse <- function(urlstring) {
+    dat = readLines(urlstring)
+    datdf = fromJSON(dat)
+    return(datdf)
+}
+
+add_row <- function(df, jsndat, reqdat) {
+    # expects df to have columns [street, city, state, lat, lon, loctype]
+    # req dat is a row of data used for request [street, city, state]
+    resdf = data.frame(
+        name = reqdat$name,
+        age =  reqdat$age,
+        gender = reqdat$gender,               
+        raceethnicity = reqdat$raceethnicity,       
+        month = reqdat$month,              
+        day = reqdat$day,
+        year = reqdat$year,                
+        streetaddress = reqdat$streetaddress,      
+        city = reqdat$city,                
+        state = reqdat$state,              
+        classification = reqdat$classification,      
+        lawenforcementagency = reqdat$lawenforcementagency,
+        disposition = reqdat$disposition,          
+        lat = reqdat$lat,                 
+        long = reqdat$long,                
+        armed = reqdat$armed, 
+        state_fp = jsndat$Results$censusTract$stateFips,
+        geo_id = jsndat$Results$censusTract$fips,
+        census_tract = jsndat$Results$censusTract$name
+    )
+    return(rbind(df, resdf))
+}
+
+map_data <- function(df) {
+    # expects df to have columns [street, city, state]
+    # initialize a dataframe with appropriate columns using the first row of
+    # our request data
+    reqrow = df[1,]
+    print(reqrow)
+    
+    qryurl = row_to_url(reqrow)
+    print(qryurl)
+    jsndf = get_and_parse(qryurl)
+    print(jsndf)
+
+    newdf = data.frame(
+        name = reqrow$name,
+        age =  reqrow$age,
+        gender = reqrow$gender,               
+        raceethnicity = reqrow$raceethnicity,       
+        month = reqrow$month,              
+        day = reqrow$day,
+        year = reqrow$year,                
+        streetaddress = reqrow$streetaddress,      
+        city = reqrow$city,                
+        state = reqrow$state,              
+        classification = reqrow$classification,      
+        lawenforcementagency = reqrow$lawenforcementagency,
+        disposition = reqrow$disposition,          
+        lat = reqrow$lat,                 
+        long = reqrow$long,                
+        armed = reqrow$armed, 
+        state_fp = jsndf$Results$censusTract$stateFips,
+        geo_id = jsndf$Results$censusTract$fips,
+        census_tract = jsndf$Results$censusTract$name
+    )
+
+    # populate the dataframe with the rest of the request data
+    for (ix in 2:nrow(df)) {
+        tryCatch({
+            reqrow = df[ix, c("name","age","gender","raceethnicity","month","day","year","streetaddress","city","state",
+                          "classification","lawenforcementagency","disposition","lat","long","armed" )]
+
+            if (!is.null(reqrow[15]) | !is.null(reqrow[16])){
+                qryurl <-  row_to_url(reqrow)
+                jsndf <-  get_and_parse(qryurl)
+                newdf <-  add_row(newdf, jsndf, reqrow)
+            }
+        })
+    }
+
+    return(newdf)
+}
+
+#shortDatacomplete <- map_data(shortData)
+completeData <- map_data(data)
 ```
 
 
-
-```{r, echo=FALSE, warning=FALSE}
-# HISTOGRAM BY RACE PER MILLION
-race_count <- per_million_counts(race_count)
-# Make a histogram
-ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
-    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
-          panel.background = element_blank()) +
-    ggtitle('People Killed by Police by Race/Ethnicity') +
-    labs(x = 'Race/Ethnicity', y = '# killed (per million)')
-```
-
-
-```{r, echo=FALSE, results='asis'}
-# KABBLE ARMED BY RACE
-race_count_armed <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
-race_count_armed %>% arrange(desc(n)) %>% kable(col.names = c("Race/Ethnicity","Number of Deaths"), caption="Number of Unarmed People Killed by Police by Race/Ethnicity")
-```
-
-
-```{r, echo=FALSE, warning=FALSE}
-# HISTOGRAM ARMED BY RACE PER MILLION
-race_count_armed <- per_million_counts(race_count_armed)
-# Make a histogram
-ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million), stat = "identity", fill="#FF9999") + 
-    theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
-          panel.background = element_blank()) +
-    ggtitle('Unarmed People Killed by Police by Race/Ethnicity') +
-    labs(x = 'Race/Ethnicity', y = '# killed (per million)')
-```
-
-### Location
-
-> <img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Distribution_of_Annual_Household_Income_in_the_United_States_2010.png" width="700" height="350" /> 
-
-
-```{r, echo=FALSE, warning=FALSE}
-# HISTOGRAM OF INCOME
-data$median_household_Income <- as.numeric(data$median_household_Income)
-data_income <- na.omit(select(data,median_household_Income))
-ggplot(data_income) + geom_histogram(aes(x=median_household_Income), binwidth = 5000, fill="#FF9999", color= "white") + 
-    ggtitle('Median Household Incomes in Areas Where People Were Killed by Police') + labs(x = 'Median Household Income of Census Tract ($)' , y = '# of people killed') +
-    theme(panel.background = element_blank(), 
-          axis.line = element_line(colour = "black", size=.1))+
-    scale_x_continuous(breaks=c(0,25000, 50000, 75000, 100000, 125000, 150000),
-                       limits=c(0,175000),
-                       expand=c(0, 1)) +
-    scale_y_continuous(breaks=c(0, 50, 100, 150),
-                       limits=c(0, 150),
-                       expand=c(0,0)) 
-```
-
-
-The median household income in the US in 2015 was \$55,775 according to the [2015 Census](https://www.census.gov/content/dam/Census/library/publications/2016/demo/acsbr15-02.pdf). The median median household income of the locations where people were killed by police in 2015 was \$43,629.
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
-median_median_income <- median(na.omit(as.numeric(data$median_household_Income)))
-print(median_median_income)
-```
-
-
-
-
-```{r, warning=FALSE, echo=FALSE}
-# HISTOGRAM OF EDUCATION
-data$percent_25_or_older_HighSchool_grads <- as.numeric(data$percent_25_or_older_HighSchool_grads)
-data_grads <- na.omit(select(data,percent_25_or_older_HighSchool_grads))
-ggplot(data_grads) + geom_histogram(aes(x=percent_25_or_older_HighSchool_grads), binwidth = 2.5, fill="#FF9999", color= "white") + 
-    ggtitle('Education Levels in Areas Where People Were Killed by Police') + labs(x = 'Percent of Population over 25 with a Highschool Diploma (%)' , y = '# of people killed') +
-    theme(panel.background = element_blank(), 
-          axis.line = element_line(colour = "black", size=.1))+
-    scale_x_continuous(breaks=c(20, 40, 60, 80, 100),
-                       limits=c(20,105),
-                       expand=c(0, 1)) +
-    scale_y_continuous(breaks=c(0, 50, 100, 150),
-                       limits=c(0, 150),
-                       expand=c(0,0)) 
-```
-
-
-
-
-Deceased in Majority?   | Percentage
-------------------------|------------  
-Yes                     | 59.08%
-No                      | 37.36%
-Unknown                 | 03.56%
-```{r echo=FALSE, warning=FALSE, eval=FALSE}
-# TABLE OF IN MAJORITY
-nrow(filter(data, in_majority=="Yes"))/nrow(data)
-nrow(filter(data, in_majority=="No"))/nrow(data) 
-nrow(filter(data, is.na(in_majority)))/nrow(data) 
-```
-
-
-***
-
-# Final Analysis 
-What did you learn about the data? 
-How did you answer the questions? 
-How can you justify your answers?
+## Google Maps API   
+This function requests a locations's county given its address and then adds it to the dataframe. 
 ```{r}
+countyFinder <- function(row){
+    
+    address <- row[1]
+    city <- row[2]
+    state <- row[3]
+    url <- paste0("https://maps.googleapis.com/maps/api/geocode/json?address=", address, ",+",
+                  city, ",+", state, "&key=AIzaSyAAo44VJYaam-_y4Hs7pZic5fUZUDGk53E")
+    
+    raw_json <- readLines(url)
+    
+    # turn the json into a nice list
+    info <- fromJSON(raw_json)
+    
+    # Get the first element of from the results list, and then the first componenent of address component
+    components <- info["results"][[1]][["address_components"]][[1]]
+    # Check component is not null
+    if(!is.null(components)){
+        # Check each elelement in address component to find the one that is listed as "administrative_area_level_2"
+        # This component will give us the county name for a given request
+        for (i in 1:nrow(components)){
+            if (str_detect(components[i,]["types"], "administrative_area_level_2")){
+                return(unlist(components[i,][["long_name"]]))
+            }
+        }
+    }
+}
 
+importantCols <- dplyr::select(data, streetaddress, city, state)
+counties <- apply(importantCols, 1, countyFinder)
+counties1 <- as.character(counties)
+completeData <- add_column(completeData,county = (counties1))
 ```
 
 
 
+## US Census API    
+The following functions request certain US Census data for each location in the dataset.  
+```{r, warning=FALSE}
+#Initialize data frames for important variables
+medianIncomeByTract <- data.frame()
 
 
+# Create base url string
+    start_url <- 'http://api.census.gov/data/2015/acs5/profile?get='
+    end_url <- ',NAME&for=tract:*&in=state:'
+    key <- '&key=913ff64a27817f08554c0606053c0715f1de4a06'
+
+    
+# Get median Household Income    
+for (i in 1:56){
+      tryCatch({
+        medianIncomeJSON <- readLines(paste0(start_url,'DP03_0062E',end_url,i,key))
+        medianIncome <- fromJSON(medianIncomeJSON)
+        medianIncome <- data.frame(medianIncome)
+        medianIncome <- filter(medianIncome, X2 != 'NAME')
+        medianIncome <- mutate(medianIncome, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        medianIncome <- mutate(medianIncome, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        medianIncomeByTract <- rbind.data.frame(medianIncomeByTract, medianIncome)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+medianIncomeByTract <-  mutate(medianIncomeByTract,county = str_trim(county1))
+completeData <- left_join(completeData, medianIncomeByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'median_household_Income'
 
 
+```
 
+We find the demographics of each census tract by looking at the breakdown of race percentages. Note, we are not using all races listed on the census, and we are also double counting the people that identify as more than one race.
+```{r, warning=FALSE}
+# Get percent white population  
+percentWhiteByTract <- data.frame()
+for (i in 1:56){
+      tryCatch({
+        percentWhiteJSON <- readLines(paste0(start_url,'DP05_0072PE',end_url,i,key))
+        percentWhite <- fromJSON(percentWhiteJSON)
+        percentWhite <- data.frame(percentWhite)
+        percentWhite <- filter(percentWhite, X2 != 'NAME')
+        percentWhite <- mutate(percentWhite, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentWhite <- mutate(percentWhite, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentWhiteByTract <- rbind.data.frame(percentWhiteByTract,percentWhite)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+percentWhiteByTract <-  mutate(percentWhiteByTract,county = str_trim(county1))
+completeData <- left_join(completeData, percentWhiteByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_white_population'
+```
+
+
+```{r, warning=FALSE}
+# Get percent black population  
+
+percentBlackByTract <- data.frame()
+for (i in 1:56){
+      tryCatch({
+        percentBlackJSON <- readLines(paste0(start_url,'DP05_0033PE',end_url,i,key))
+        percentBlack <- fromJSON(percentBlackJSON)
+        percentBlack <- data.frame(percentBlack)
+        percentBlack <- filter(percentBlack, X2 != 'NAME')
+        percentBlack <- mutate(percentBlack, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentBlack <- mutate(percentBlack, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentBlackByTract <- rbind.data.frame(percentBlackByTract,percentBlack)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+percentBlackByTract <-  mutate(percentBlackByTract,county = str_trim(county1))
+completeData <- left_join(completeData, percentBlackByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_black_population'
+```
+
+
+```{r, warning=FALSE}
+# Get percent Hispanic population  
+
+
+percentHispanicByTract <- data.frame()
+
+for (i in 1:56){
+      tryCatch({
+        percentHispanicJSON <- readLines(paste0(start_url,'DP05_0066PE',end_url,i,key))
+        percentHispanic <- fromJSON(percentHispanicJSON)
+        percentHispanic <- data.frame(percentHispanic)
+        percentHispanic <- filter(percentHispanic, X2 != 'NAME')
+        percentHispanic <- mutate(percentHispanic, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentHispanic <- mutate(percentHispanic, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentHispanicByTract <- rbind.data.frame(percentHispanicByTract,percentHispanic)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+percentHispanicByTract <-  mutate(percentHispanicByTract,county = str_trim(county1))
+completeData <- left_join(completeData, percentHispanicByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_hispanic_population'
+```
+
+```{r, warning=FALSE}
+percentHSGradsByTract <- data.frame()
+# Get percent of people aged 25 or older that are high school graduate or higher
+for (i in 1:56){
+      tryCatch({
+        percentHSGradsJSON <- readLines(paste0(start_url,'DP02_0066PE',end_url,i,key))
+        percentHSGrads <- fromJSON(percentHSGradsJSON)
+        percentHSGrads <- data.frame(percentHSGrads)
+        percentHSGrads <- filter(percentHSGrads, X2 != 'NAME')
+        percentHSGrads <- mutate(percentHSGrads, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentHSGrads <- mutate(percentHSGrads, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentHSGradsByTract <- rbind.data.frame(percentHSGradsByTract,percentHSGrads)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+percentHSGradsByTract <-  mutate(percentHSGradsByTract,county = str_trim(county1))
+completeData <- left_join(completeData, percentHSGradsByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_25_or_older_HighSchool_grads'
+```
+
+
+Write finished data set to csv
+```{r}
+write_csv(completeData, 'completeData.csv')
+```
 
 
