@@ -19,25 +19,25 @@ data <- read_csv('14_data_3.csv')
 ```
 
 
-# Abstract 
-ONE PARAGRAPH AT THE VERY BEGINNING OF THE DOCUMENT SUMMARIZING EVERYTHING.
+# Abstract
 
-This project aims to take the data that has been collected about the individuals who were killed by police officers in 2015, and create an interactive application that allows users to create a variety of visualizations with the data. This was accomplished by finding the data that had been previously collected for those killed in 2015 by the police. This data was then cleaned, and later supplemented by a number of demographic variables for the location in which each incident occurred. Additional variables were added by mutating existing variables, including ones to indicate if the victim was armed, or if they were in the racial majority. With this extended data, we built a shiny app with two main features, a map that filters by individuals who were killed based on an entered criteria, and another that creates a plot from the data using user input. This application is designed to let the user explore the data for themselves so that they may interact with it and reach their own conclusions based on what they find.
-
-***
-
-# Overview and Motivation 
-PROVIDE AN OVERVIEW OF THE PROJECT GOALS AND THE MOTIVATION FOR IT. CONSIDER THAT THIS WILL BE READ BY PEOPLE WHO DID NOT SEE YOUR PROJECT PROPOSAL.
-
-In recent media, more and more time and reporting have been dedicated to the topic of police actions. In the recent years, one of the topics that has gained media coverage significantly is deaths at the hands of the US police. Due to this recent surge of interest, people have begun to collect more data about those that have been killed by poilice, as well as the details surrounding the incident. One such data set has been gathered by The Guardian as a supplement to an ongoing news story they call "The Counted". This data set has information regarding every reported incident of a person that was killed by a police officer in the years 2015 and 2016. Due to time restrictions and cleanliness of the data, we chose to work with the 2015 data set.      
--  The data that The Guardian provided had information about the deceased, including their name, race, age, and location at death. We decided to take this data set, and add a sense of background to each incident by adding information about the demographic makeup of the area in which the incident occured.
- -  Because our data set was so limited, we did not feel comfortable performing statistical analysis. Instead, we thought it would be more interesting to create an application that allows a user to explore the data for themselves and see the different patterns that emerge. So with this data set we set our goal to create a Shiny application that will allow a user to interact with our data frame and create a variety of visualizations with it. We decided to create an application that had the functionality to create a series of graphs that were felt portrayed interesting summaries of the data set in a way that felt interactive to the user. Alongside the graph maker, the application also has the ablility to show a United States map that shows the locations of each incident. This map has the ability to filter out points based on user selection. This means a user can easily view those who was armed with a firearm at their death, or those who were classified as Hispanic, or just who was killed in July with a simple drop down selection menu. 
- -  We feel that this project has a strong sense of cultural significance. Police killings is a major issue that is in hot debate currently, and to create an unbiased application that allows a user to come to their own conclusions seems to be a worthwhile effort. 
+This project aims to take data that has been collected about the individuals who were killed by police officers in 2015 and create an interactive application that allows users to create a variety of visualizations with the data. This was accomplished by finding a data set with informaiton about incidents in which people were killed by the police in 2015. This data was then cleaned, and later supplemented by a number of demographic variables for the location in which each incident occurred. Additional variables were added by mutating existing variables, including ones to indicate if the victim was armed, or if they were in the racial majority. With this extended data, we built a shiny app with two main features, a map that filters by individuals who were killed based on an entered criteria, and another that creates a plot from the data using user input. This application is designed to let the user explore the data for themselves so that they may interact with it and reach their own conclusions based on what they find.
 
 ***
 
-# Related Work 
-ANYTHING THAT INSPIRED YOU, SUCH AS A PAPER, A WEB SITE, OR SOMETHING WE DISCUSSED IN CLASS.
+# Overview and Motivation
+
+In recent media, an increasing amount of time has been spent covering police actions. One of the topics that has significantly gained media coverage is death at the hands of the US police. Due to this recent surge of interest, people have begun to collect more data about those that have been killed by poilice, as well as the details surrounding the incident. One such data set has been gathered by The Guardian and inlcudes information regarding every reported incident of a person that was killed by a police officer in the years 2015 and 2016. Due to time restrictions and cleanliness of the data, we chose to foucus only on the incidents of 2015.  
+
+The data that The Guardian provided had information about the deceased, including their name, race, age, and location at death. We decided to take this data set, and add a sense of background to each incident by adding information about the demographic makeup of the area in which the incident occured.  
+
+Because our data set was so limited, we did not feel comfortable performing statistical analysis. Instead, we thought it would be more interesting to create an application that allows a user to explore the data for themselves and see the different patterns that emerge. So with this data set we set our goal to create a Shiny application that will allow a user to interact with our data frame and create a variety of visualizations with it. We decided to create an application that had the functionality to create a series of graphs that were felt portrayed interesting summaries of the data set in a way that felt interactive to the user. Alongside the graph maker, the application also has the ablility to show a United States map that shows the locations of each incident. This map has the ability to filter out points based on user selection. This means a user can easily view those who was armed with a firearm at their death, or those who were classified as Hispanic, or just who was killed in July with a simple drop down selection menu.    
+
+We feel that this project has a strong sense of cultural significance. Police killings is a major issue that is in hot debate currently, and to create an unbiased application that allows a user to come to their own conclusions seems to be a worthwhile effort. 
+
+***
+
+# Related Work
 
 Our main inspiration for this project was the project that is currently being taken on by The Guardian. ["The Counted"](https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/the-counted-police-killings-us-database) aims to publicize the details of every individual who has been killed by a police officer within the last two years. The Guardian has made some already incredible visualizations with the data, and their work created a sense of interest in our group. So we took the data that they had been working with, and decided to supplement it with a range of demographic information. This allowed us to also create a numer of visualizations, but also allowed us to differentiate ourselves by adding addtional information to be able to explore.
 
@@ -79,7 +79,8 @@ We combined The Guardian's post December 7th data with out dataset. These last p
 
 
 ### APIs
-We wanted to gether information about the locations in which people were killed by police in 2015, so we utilized a combination of APIs. The first two APIs gave us the county and census tract of each incident. We chose to use census information about each census tract rather than each county so that the information applied to a smaller area more specific to each incident. We imput state and county information to return our desired census data and then joined the results to our dataset by state, county, and census tract. The code for this process can be found [here](https://github.com/j9mis/group14/blob/master/14_analysis/everything_else/API_code.Rmd). 
+We wanted to gether information about the locations in which people were killed by police in 2015, so we utilized a combination of APIs. The first two APIs gave us the county and census tract of each incident. We chose to use census information about each census tract rather than each county so that the information applied to a smaller area more specific to each incident. We imput state and county information to return our desired census data and then joined the results to our dataset by state, county, and census tract. The code for this process can be found [here](https://github.com/j9mis/group14/blob/master/14_analysis/everything_else/API_code.Rmd).  
+
 We also encountered an issue where the latitudes and longitudes for the incidents occuring in the month of December were not present in any data set, and we were therefore unable to gather census data for these incidents. To fill these in, we used an r package called RDSTK, and created a function to add latitudes and longitudes to out data. This code can be found here [here](https://github.com/j9mis/group14/blob/master/14_analysis/results/helper_functions.R)  
 
 #### Our APIs:   
@@ -127,7 +128,6 @@ ggplot(date_count) +
 ```
 
 ### Age & Gender  
-
 The graph below shows the age distribution of the US population in 2010. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.    
 > <img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
   
@@ -325,13 +325,8 @@ nrow(filter(data, is.na(in_majority)))/nrow(data)
 ***
 
 # Final Analysis 
-WHAT DID YOU LEARN ABOUT THE DATA? 
-HOW DID YOU ANSWER THE QUESTIONS? 
-HOW CAN YOU JUSTIFY YOUR ANSWERS?
 
-```{r}
 
-```
 
 
 
