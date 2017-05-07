@@ -99,7 +99,8 @@ server <- function(input, output, session) {
         }
         leaflet(data) %>%
             addTiles() %>% addMarkers(~long, ~lat, popup = 
-                                          paste("Armed with: ", as.character(data$armed),
+                                          paste("Name: ", as.character(data$person_name), " (", as.character(data$gender), ")",
+                                                "<br>Armed with: ", as.character(data$armed),
                                                 "<br>Age: ", as.character(data$age),
                                                 "<br>Race: ", as.character(data$raceethnicity),
                                                 "<br>Date of incident: ", as.character(data$month), " ",
