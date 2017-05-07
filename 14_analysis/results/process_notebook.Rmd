@@ -267,7 +267,7 @@ ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million)
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
 ```
 
-### Where
+### Where:
 
 #### Income
 The median household income in the US in 2015 was \$55,775 according to the [2015 Census](https://www.census.gov/content/dam/Census/library/publications/2016/demo/acsbr15-02.pdf), while the median median household income of the locations where people were killed by police in 2015 was \$43,629. When comparing the following US distribution of household imcome to the distribution of household income in areas where people were killed by police in 2015, it appears that people killed by police were more more concentrated in areas of low income than we would expect based on the income distribution of the US. There were very few deaths in high-inccome areas in 2015.  
