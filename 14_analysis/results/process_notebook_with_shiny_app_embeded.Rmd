@@ -311,13 +311,14 @@ ggplot(data_income) + geom_histogram(aes(x=median_household_Income), binwidth = 
     ggtitle('Median Household Incomes in Areas Where People Were Killed by Police') + labs(x = 'Median Household Income of Census Tract ($)' , y = '# of people killed') +
     theme(panel.background = element_blank(), 
           axis.line = element_line(colour = "black", size=.1))+
-    scale_x_continuous(breaks=c(0,25000, 50000, 75000, 100000, 125000, 150000),
-                       limits=c(0,175000),
+    scale_x_continuous(breaks=c(0,25000, 50000, 75000, 100000, 125000, 150000, 175000, 200000, 225000),
+                       limits=c(0,250000),
                        expand=c(0, 1)) +
     scale_y_continuous(breaks=c(0, 50, 100, 150),
                        limits=c(0, 150),
                        expand=c(0,0)) 
-```
+``` 
+
 
 
 #### Education  
