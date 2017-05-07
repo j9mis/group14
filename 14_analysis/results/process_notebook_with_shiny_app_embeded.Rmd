@@ -375,7 +375,7 @@ shinyApp(
             tabPanel("Map of Incidents", p("Select one or more varibles to filter the data by."),
                      sidebarLayout(
                          sidebarPanel(
-                             selectInput("variable1Selector", label = h4("Select Variable to filter on"), 
+                             selectInput("variable1Selector", label = h4("Select variable to filter"), 
                                          choices = list("Select a variable" = "none","Median Income" = "median_household_Income",
                                                         "Percent age 25+ Highschool Graduates or Higher" = "percent_25_or_older_HighSchool_grads",
                                                         "Race/Ethnicity" = "raceethnicity", "Month" = "month",
