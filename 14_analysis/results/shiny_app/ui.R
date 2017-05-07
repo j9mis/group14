@@ -3,7 +3,7 @@ library(leaflet)
 
 ui <- fluidPage(
     titlePanel("People Killed by Police in 2015"),
-    mainPanel(
+    mainPanel( p("Over 1,000 people were killed by police in 2015. Explore these incidents using this interactive application."),
         tabsetPanel(
             tabPanel("Map of Incidents", leafletOutput("mymap"), 
                      selectInput("variableSelector", label = h4("Select Variable to filter on"), 
