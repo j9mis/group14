@@ -106,29 +106,30 @@ There were multiple missing values throughout the dataset, most often for "age",
 ***
 
 # Exploratory Data Analysis 
-Since we focused on creating a way for people to interact with our data rather than making inferences or predictions, our analysis consisted of making some simple plots and calulatings descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done.   
+Since we focused on creating a way for people to interact with our data rather than making inferences or predictions of our own, our analysis consisted of making some simple plots and calulating descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done.   
 
 ### Time 
-The following plot shows the number of people killed by police during each month of 2015.  
-There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. 
-This could possibly be due to the nature of media coverage or the time of year. 
+#### When people were by police in 2015:
+The following plot depicts the number of people killed by police during each month of 2015.  
+There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. It's somewhat interesting that there were two major peaks and valleys during the year rather than a more uniform pattern. 
+A possible explanations for this trend could include the nature of media coverage. Could the media focusing on rising death tallys spurr a temporary decline in fatalities at the hands of the police before the instances increase again? We cannot infer an explanation from this graph alone, as the rises and falls could result purley from chance. 
 ```{r, echo = FALSE}
 # PLOT OF DEATHS PER MONTH
 date_count <- data %>% group_by(month_num) %>% count()
 ggplot(date_count) + 
     geom_line(aes(x=month_num, y=n), color="#FF9999") +
     geom_point(aes(x=month_num, y=n), stat = "identity") + 
-    ggtitle('Police Killed by Police in 2015') +
+    ggtitle('When People Were Killed by Police in 2015') +
     labs(x = 'Month', y = '# of people killed by police') + 
     theme(axis.line.x = element_line(color = "black", size=.1),
         axis.line.y = element_line(color="black", size = .1), 
           panel.background = element_blank()) +
     scale_x_discrete(limits=c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"),
-                     labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec"))  
+                     labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec")) 
 ```
 
 ### Age & Gender  
-The graph below shows the age distribution of the US population in 2010. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55. The population declines steadily after age 55.    
+The following US Census graph shows the age and gender distribution of the US population in 2010. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55, and the population declines steadily after age 55.  
 > <img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
   
     
@@ -137,7 +138,7 @@ The graph below shows the age distribution of the US population in 2010. We see 
           
             
               
-Looking at the following age distribution of people killed by police, we can see that is does not have the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police more than children, middle-aged people, and the elderly. From this graph, we also note how many more men are killed by police than women.  
+Looking at the following age distribution of people killed by police in 2015, we can see that is does not share the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police disproportionately more than children, middle-aged people, and the elderly. From this graph, we also note how many more men are killed by police than women.  
   
 ```{r echo=FALSE, warning=FALSE}
 # HISTOGRAM OF AGE AND GENDER
@@ -155,7 +156,7 @@ ggplot(data_age) + geom_histogram(aes(x=age, fill=gender), binwidth = 4,position
 ```
 
 
-The median age of the US population in 2015 was reportedly [37.8](https://www.statista.com/statistics/241494/median-age-of-the-us-population/) years old while the median age of pepople killed by police in 2015 was 35. The following table shows the median age of people killed by police by race compared to the 2015 median age of each race.
+The median age of the US population in 2015 was reportedly [37.8](https://www.statista.com/statistics/241494/median-age-of-the-us-population/) years old while the median age of pepople killed by police in 2015 was 35. The following table shows the median age of people killed by police by race compared to the 2015 median age of each race. While the median ages of white and Asian people killed by police were grater than those of other races, this may likely be attributed to the fact that the US white and Asian populations are older than those of other races. 
 
 Race/Ethnicity          |  Killed by Police | US Population
 ------------------------|-------------------|--------------  
@@ -221,6 +222,8 @@ per_million_counts <- function(race_count){
 }
 ```
 
+
+More white people were killed by police in 2015 than any other race. The following table gives counts for the number of deaths for people of each race in the data set. When we normalize these counts by [proportion of the population](https://www.census.gov/quickfacts/table/PST045216/00), we note that more black people disproportionately more than any other race. The graph following graph illustrates this.   
 ```{r, echo=FALSE, results='asis'}
 # KABBLE BY RACE
 race_count <- data %>% group_by(raceethnicity) %>% count()
@@ -240,6 +243,9 @@ ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
 ```
 
+#### Unarmed People
+
+The racial distribution of people killed by police in 2015 changes when we look only at people who were unarmed rather than all of the deceased. Most unarmed victims were white, but again, when we normalize these counts by proportion of the population, we note that more black people disproportionately more than any other race. In the graph below, it appears that unarmed black, Native American, and hispanic race people are killed more than people of white and Asian race/ethnicity relative to their population. We should expect that the number of people killed per million be relatively uniform across all races, ethnicities, ages, and genders, but our exploration has indicated this may not be the case. 
 
 ```{r, echo=FALSE, results='asis'}
 # KABBLE ARMED BY RACE
