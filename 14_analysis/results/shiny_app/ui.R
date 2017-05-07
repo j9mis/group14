@@ -5,7 +5,7 @@ ui <- fluidPage(
     titlePanel("People Killed by Police in 2015"),
     div(p("Over 1,000 people in the United States were killed by police in 2015. Explore these incidents."),
         tabsetPanel( 
-            tabPanel("Map of Incidents", p("Select one or more varibles to filter the data by."),
+            tabPanel("Map of Incidents", p("Select one or more varibles to filter the data by. Click on points on the map to see information about an incident."),
                      sidebarLayout(
                          sidebarPanel(
                              selectInput("variable1Selector", label = h4("Select Variable to filter on"), 
