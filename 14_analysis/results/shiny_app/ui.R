@@ -51,7 +51,7 @@ ui <- fluidPage(
                              conditionalPanel(
                                  condition = ("input.variable2Selector != 'median_household_Income' &&
                                               input.variable2Selector !=  'percent_25_or_older_HighSchool_grads'"),
-                                 selectInput("factorSelector2", label = "Select Value to filter on", choices = list())
+                                 selectInput("factor2Selector", label = "Select Value to filter on", choices = list())
                              ),
                              
                              
@@ -74,7 +74,7 @@ ui <- fluidPage(
                              conditionalPanel(
                                  condition = ("input.variable3Selector != 'median_household_Income' &&
                                       input.variable3Selector !=  'percent_25_or_older_HighSchool_grads'"),
-                                 selectInput("factorSelector3", label = "Select Value to filter on", choices = list())
+                                 selectInput("factor3Selector", label = "Select Value to filter on", choices = list())
                              )
                          ),
                          mainPanel(leafletOutput("mymap"))
