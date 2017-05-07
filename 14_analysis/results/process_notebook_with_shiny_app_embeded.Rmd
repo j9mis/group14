@@ -369,6 +369,7 @@ nrow(filter(data, is.na(in_majority)))/nrow(data)
 shinyApp(
   
   ui = fluidPage(
+  titlePanel("People Killed by Police in 2015"),
     mainPanel(
         tabsetPanel(
             tabPanel("Map of Incidents", leafletOutput("mymap"), 
