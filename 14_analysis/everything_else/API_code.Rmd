@@ -172,10 +172,15 @@ importantCols <- dplyr::select(data, streetaddress, city, state)
 counties <- apply(importantCols, 1, countyFinder)
 counties1 <- as.character(counties)
 completeData <- add_column(completeData,county = (counties1))
+write_csv(completeData, 'data_missing_counties.csv')
 ```
 
-
-
+Note: Some counties will appear as null, preventing us from getting further information. From this point, we will hand code in the remaining counties that were left out. The file below has the hand entered data
+```{r}
+completeData <- read_csv('all_months_with_counties.csv')
+completeData <- mutate(completeData, census_tract = as.character(census_tract))
+completeData <- mutate(completeData, state_fp = as.character(state_fp))
+```
 ## US Census API    
 The following functions request certain US Census data for each location in the dataset.  
 ```{r, warning=FALSE}
@@ -189,7 +194,6 @@ medianIncomeByTract <- data.frame()
     key <- '&key=913ff64a27817f08554c0606053c0715f1de4a06'
 
     
-# Get median Household Income    
 for (i in 1:56){
       tryCatch({
         medianIncomeJSON <- readLines(paste0(start_url,'DP03_0062E',end_url,i,key))
@@ -203,10 +207,11 @@ for (i in 1:56){
         i <- i+1
     })
 }
-medianIncomeByTract <-  mutate(medianIncomeByTract,county = str_trim(county1))
-completeData <- left_join(completeData, medianIncomeByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
-names(completeData)[names(completeData) == 'X1'] <- 'median_household_Income'
+medianIncomeByTractTest <-  mutate(medianIncomeByTract,county = str_trim(county1), X3 = as.character(X3))
+medianIncomeByTractTest <-  mutate(medianIncomeByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
 
+completeData <- left_join(completeData, medianIncomeByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'median_household_Income'
 
 ```
 
@@ -227,10 +232,14 @@ for (i in 1:56){
         i <- i+1
     })
 }
-percentWhiteByTract <-  mutate(percentWhiteByTract,county = str_trim(county1))
-completeData <- left_join(completeData, percentWhiteByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+
+percentWhiteByTractTest <-  mutate(percentWhiteByTract,county = str_trim(county1), X3 = as.character(X3))
+percentWhiteByTractTest <-  mutate(percentWhiteByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentWhiteByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'percent_white_population'
 ```
+
 
 
 ```{r, warning=FALSE}
@@ -250,11 +259,12 @@ for (i in 1:56){
         i <- i+1
     })
 }
-percentBlackByTract <-  mutate(percentBlackByTract,county = str_trim(county1))
-completeData <- left_join(completeData, percentBlackByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+percentBlackByTractTest <-  mutate(percentBlackByTract,county = str_trim(county1), X3 = as.character(X3))
+percentBlackByTractTest <-  mutate(percentBlackByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentBlackByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'percent_black_population'
 ```
-
 
 ```{r, warning=FALSE}
 # Get percent Hispanic population  
@@ -275,10 +285,39 @@ for (i in 1:56){
         i <- i+1
     })
 }
-percentHispanicByTract <-  mutate(percentHispanicByTract,county = str_trim(county1))
-completeData <- left_join(completeData, percentHispanicByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+percentHispanicByTractTest <-  mutate(percentHispanicByTract,county = str_trim(county1), X3 = as.character(X3))
+percentHispanicByTractTest <-  mutate(percentHispanicByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentHispanicByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'percent_hispanic_population'
 ```
+
+```{r, warning = FALSE}
+# Get percent of population that is Native American
+percentNativeByTract <- data.frame()
+
+for (i in 1:56){
+      tryCatch({
+        percentNativeJSON <- readLines(paste0(start_url,'DP05_0074PE',end_url,i,key))
+        percentNative <- fromJSON(percentNativeJSON)
+        percentNative <- data.frame(percentNative)
+        percentNative <- filter(percentNative, X2 != 'NAME')
+        percentNative <- mutate(percentNative, tract = unlist(lapply(str_extract_all(X2, "[0-9\\.]+"), `[[`, 1))) 
+        percentNative <- mutate(percentNative, county1 = unlist(lapply(str_extract_all(X2, "(?<=,)[^,]+(?=,)"), `[[`, 1))) %>% select(X1, tract, county1, X3) 
+        percentNativeByTract <- rbind.data.frame(percentNativeByTract,percentNative)
+    }, error = function(err) {
+        i <- i+1
+    })
+}
+
+percentNativeByTractTest <-  mutate(percentNativeByTract,county = str_trim(county1), X3 = as.character(X3))
+percentNativeByTractTest <-  mutate(percentNativeByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentNativeByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+names(completeData)[names(completeData) == 'X1'] <- 'percent_native_population'
+
+```
+
 
 ```{r, warning=FALSE}
 percentHSGradsByTract <- data.frame()
@@ -296,8 +335,10 @@ for (i in 1:56){
         i <- i+1
     })
 }
-percentHSGradsByTract <-  mutate(percentHSGradsByTract,county = str_trim(county1))
-completeData <- left_join(completeData, percentHSGradsByTract, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
+percentHSGradsByTractTest <-  mutate(percentHSGradsByTract,county = str_trim(county1), X3 = as.character(X3))
+percentHSGradsByTractTest <-  mutate(percentHSGradsByTractTest, X3 = substr(X3,regexpr("[^0]",X3),nchar(X3)))
+
+completeData <- left_join(completeData, percentHSGradsByTractTest, by=c('census_tract'='tract', 'state_fp'= 'X3', "county" = "county")) %>% select(-county1)
 names(completeData)[names(completeData) == 'X1'] <- 'percent_25_or_older_HighSchool_grads'
 ```
 
