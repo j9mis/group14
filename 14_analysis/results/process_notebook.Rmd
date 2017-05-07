@@ -106,10 +106,10 @@ There were multiple missing values throughout the dataset, most often for "age",
 ***
 
 # Exploratory Data Analysis 
+
 Since we focused on creating a way for people to interact with our data rather than making inferences or predictions of our own, our analysis consisted of making some simple plots and calulating descriptive statistics. The goal of our visualizations and Shiny App are to allow people to explore and interpret the data for themselves as we have done.   
 
-### Time 
-#### When people were by police in 2015:
+### When: 
 The following plot depicts the number of people killed by police during each month of 2015.  
 There appears to be somewhat of a cycle in which the numer of deaths per month rises to a peak and then begins to decline before rising again. It's somewhat interesting that there were two major peaks and valleys during the year rather than a more uniform pattern. 
 A possible explanations for this trend could include the nature of media coverage. Could the media focusing on rising death tallys spurr a temporary decline in fatalities at the hands of the police before the instances increase again? We cannot infer an explanation from this graph alone, as the rises and falls could result purley from chance. 
@@ -128,7 +128,9 @@ ggplot(date_count) +
                      labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov","Dec")) 
 ```
 
-### Age & Gender  
+### Who:
+
+#### Age and Gender  
 The following US Census graph shows the age and gender distribution of the US population in 2010. We see that a lot of the popopulation falls pretty evenly between ages 0 to 55. There are clusters from 15 to 30 and from 40 t0 55, and the population declines steadily after age 55.  
 > <img src="http://www.randalolson.com/wp-content/uploads/pop_pyramid_grouped_annotated.png" width="700" height="350" />  
   
@@ -138,7 +140,7 @@ The following US Census graph shows the age and gender distribution of the US po
           
             
               
-Looking at the following age distribution of people killed by police in 2015, we can see that is does not share the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police disproportionately more than children, middle-aged people, and the elderly. From this graph, we also note how many more men are killed by police than women.  
+Looking at the following age distribution of people killed by police in 2015, we can see that is does not share the same general shape of the age distribution of the US popultion. The distribution is skewed, indicating that young adults are killed by police disproportionately more than children, middle-aged people, and the elderly. From this histogram, we also note how many more men are killed by police than women.  
   
 ```{r echo=FALSE, warning=FALSE}
 # HISTOGRAM OF AGE AND GENDER
@@ -191,7 +193,7 @@ median(na.omit(Other$age))
 
 
 
-### Race 
+#### Race 
 ```{r, echo=FALSE, warning=FALSE}
 # FUNCTION TO TURN INTO PER MILLION COUNTS (NORMAILZES)
 pop_2015 = 321418820
@@ -223,7 +225,7 @@ per_million_counts <- function(race_count){
 ```
 
 
-More white people were killed by police in 2015 than any other race. The following table gives counts for the number of deaths for people of each race in the data set. When we normalize these counts by [proportion of the population](https://www.census.gov/quickfacts/table/PST045216/00), we note that more black people disproportionately more than any other race. The graph following graph illustrates this.   
+More white people were killed by police in 2015 than any other race. The following table gives counts for the number of deaths for people of each race in the data set. When we normalize these counts by [proportion of the population](https://www.census.gov/quickfacts/table/PST045216/00), we note that more black people disproportionately more than any other race. The following histogram illustrates this.   
 ```{r, echo=FALSE, results='asis'}
 # KABBLE BY RACE
 race_count <- data %>% group_by(raceethnicity) %>% count()
@@ -243,9 +245,9 @@ ggplot(na.omit(race_count)) + geom_bar(aes(x=raceethnicity, y=per_million), stat
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
 ```
 
-#### Unarmed People
+#### Unarmed 
 
-The racial distribution of people killed by police in 2015 changes when we look only at people who were unarmed rather than all of the deceased. Most unarmed victims were white, but again, when we normalize these counts by proportion of the population, we note that more black people disproportionately more than any other race. In the graph below, it appears that unarmed black, Native American, and hispanic race people are killed more than people of white and Asian race/ethnicity relative to their population. We should expect that the number of people killed per million be relatively uniform across all races, ethnicities, ages, and genders, but our exploration has indicated this may not be the case. 
+The racial distribution of people killed by police in 2015 changes when we look only at people who were unarmed rather than all of the deceased. Most unarmed victims were white, but again, when we normalize these counts by proportion of the population, we note that more black people disproportionately more than any other race. In the histogram below, it appears that unarmed black, Native American, and hispanic race people are killed more than people of white and Asian race/ethnicity relative to their population. We should expect that the number of people killed per million be relatively uniform across all races, ethnicities, ages, and genders, but our exploration has indicated this may not be the case. 
 
 ```{r, echo=FALSE, results='asis'}
 # KABBLE ARMED BY RACE
@@ -265,10 +267,17 @@ ggplot(na.omit(race_count_armed)) + geom_bar(aes(x=raceethnicity, y=per_million)
     labs(x = 'Race/Ethnicity', y = '# killed (per million)')
 ```
 
-### Location
+### Where
+
+#### Income
+The median household income in the US in 2015 was \$55,775 according to the [2015 Census](https://www.census.gov/content/dam/Census/library/publications/2016/demo/acsbr15-02.pdf), while the median median household income of the locations where people were killed by police in 2015 was \$43,629. When comparing the following US distribution of household imcome to the distribution of household income in areas where people were killed by police in 2015, it appears that people killed by police were more more concentrated in areas of low income than we would expect based on the income distribution of the US. There were very few deaths in high-inccome areas in 2015.  
 
 > <img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Distribution_of_Annual_Household_Income_in_the_United_States_2010.png" width="700" height="350" /> 
 
+```{r, echo=FALSE, eval=FALSE, warning=FALSE}
+median_median_income <- median(na.omit(as.numeric(data$median_household_Income)))
+print(median_median_income)
+```
 
 ```{r, echo=FALSE, warning=FALSE}
 # HISTOGRAM OF INCOME
@@ -287,15 +296,8 @@ ggplot(data_income) + geom_histogram(aes(x=median_household_Income), binwidth = 
 ```
 
 
-The median household income in the US in 2015 was \$55,775 according to the [2015 Census](https://www.census.gov/content/dam/Census/library/publications/2016/demo/acsbr15-02.pdf). The median median household income of the locations where people were killed by police in 2015 was \$43,629.
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
-median_median_income <- median(na.omit(as.numeric(data$median_household_Income)))
-print(median_median_income)
-```
-
-
-
-
+#### Education  
+Since around [88%](https://www.census.gov/content/dam/Census/library/publications/2016/demo/p20-578.pdf) of US adults posess a high school diploma or higher, it is not surprising that a majority of police killings took place in areas with a high percentage of the population with a high school diploma. See the histogram below.  
 ```{r, warning=FALSE, echo=FALSE}
 # HISTOGRAM OF EDUCATION
 data$percent_25_or_older_HighSchool_grads <- as.numeric(data$percent_25_or_older_HighSchool_grads)
@@ -313,7 +315,8 @@ ggplot(data_grads) + geom_histogram(aes(x=percent_25_or_older_HighSchool_grads),
 ```
 
 
-
+#### Racial Makeup 
+This table gives the percentage of people killed by police in 2015 that were in or not in the racial majority of the area in which they were killed. 
 
 Deceased in Majority?   | Percentage
 ------------------------|------------  
@@ -331,14 +334,5 @@ nrow(filter(data, is.na(in_majority)))/nrow(data)
 ***
 
 # Final Analysis 
-
-
-
-
-
-
-
-
-
 
 
