@@ -2,6 +2,7 @@ library(shiny)
 library(leaflet)
 
 ui <- fluidPage(
+    titlePanel("People Killed by Police in 2015"),
     mainPanel(
         tabsetPanel(
             tabPanel("Map of Incidents", leafletOutput("mymap"), 
