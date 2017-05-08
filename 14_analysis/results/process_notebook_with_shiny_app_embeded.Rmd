@@ -373,9 +373,9 @@ The second feature offered by the application is the ability to build several ba
 ## Additional Findings
 
 Based on the Shiny application, we were able to find several interesting things. One such finding was made in the bar plot generator. We initially only investigated the total number of counts per variable. However, we decided to further invesigate the effects of normailizing the population. Here is the plot that we created where we counted the number of deaths per race:
-![](https://ibb.co/nOrNWQ)
+![](https://preview.ibb.co/k4y2WQ/plot1.png)
 And here is another graph that we created where we counted the number of deaths per million people of each race and plotted those numbers:
-![](https://ibb.co/b2g0J5)
+![](https://preview.ibb.co/jcwpBQ/plot1.png)
 
 
 ```{r, echo = FALSE}
