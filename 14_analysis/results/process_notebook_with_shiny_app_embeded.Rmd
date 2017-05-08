@@ -7,37 +7,13 @@ output:
         toc: true
         toc_float: true
         code.folding: hide 
-runtime: shiny
 ---
 ```{r setup, warning=FALSE, message=F, echo=FALSE}
-#install.packages('jsonlite')
-#install.packages('stringr')
-#install.packages('tidyverse')
-#install.packages('readr')
-#install.packages('knitr')
-#install.packages('shiny')
-#install.packages('leaflet')
-#install.packages('maps')
-#install.packages('htmltools')
-#install.packages('lazyeval')
-#install.packages('dplyr')
-
-
-
-
 library(jsonlite)
 library(stringr)
 library(tidyverse)
 library(readr)
 library(knitr)
-
-
-library(shiny)
-library(leaflet)
-library(maps)
-library(htmltools)
-library(lazyeval)
-library(dplyr)
 
 data <- read_csv('14_data_3.csv')
 ```
@@ -359,12 +335,22 @@ nrow(filter(data, is.na(in_majority)))/nrow(data)
 
 # Final Analysis 
 
+Our main goal of this project was to allow people to explore data about incidents in which people lost their lives at the hands of US police. We wanted to learn about who police killed in 2015 and about the locations in which these incidents occured without making inferences or predictions. Through exploring the data, we noted how certain groups of people are killed disproportionately more than others in 2015. The plots and figures detailed above *may* suggest that people of certain age groups, genders, races, and areas are more likely to be killed than others. The dataset only covered one year and contained a littl over 1000 data points so it would be irresponsible to make any strong assumptions or assertions about police killings. Since the topic of race and police is so touchy, we created a shiny application to present data to readers with the hopes that they will gather the own valuable insights.    
+Based on the Shiny application, we were able to find a few interesting things. 
+
+## Shiny Application
+  
+Our shiny application has two main builit in features. The first feature it offers to the user is an interactive map. This map shows the location of every single police killing that had occured in 2015. Each point on the map represents a person that was killed, and clicking on a point will bring up a popup that gives information about the deceased, as well as a few background facts about the area in which the killing occured. This map has an additional feature that gives the user the ability to filter points based on certain criteria. They can find those who were killed that were of a given race, those that has a knife, etc. The user can filter the data that appears on the map by one to three attributes, allowing them to view incidents that fit a combination of different criteria. 
+ 
+ The second feature offered by the application is the ability to build several bar plots. The user is able select a variable they would like to investigate, and the application generates a bar plot counting the number of killings for each value the variable contains. The user can then further customize the plot by breaking up the bars shown by gender. This allows them to see the gender makeup of each criteria so they may get a better feel for the distribution.
+ 
+ One interesting finding a user may come across can be made by using the plot generator. We initially only investigated the total number of counts per variable. However, we decided to further invesigate the effects of normailizing the population. Here is the plot that we created where we counted the number of deaths per race:    
+ ![](https://preview.ibb.co/k4y2WQ/plot1.png)     
+ And here is another graph that we created where we counted the number of deaths per million people of each race and plotted those numbers:      
+ ![](https://preview.ibb.co/jcwpBQ/plot1.png)      
+ Based on this change, we can see a shift in the distributions of deaths that may help us to more accurately understand the true nature of the these incidents.
 
 
-
-
-
-# Shiny Application 
 ```{r, echo = FALSE}
 shinyApp(
     
@@ -672,4 +658,3 @@ ui <- fluidPage(
   }
 )
 ```
-
