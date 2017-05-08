@@ -77,7 +77,7 @@ ui <- fluidPage(
                                  selectInput("factor3Selector", label = "Select Value to filter on", choices = list())
                              )
                          ),
-                         mainPanel(leafletOutput("mymap"))
+                         mainPanel(leafletOutput("mymap"), textOutput("text"))
                      )  
             ),
             
