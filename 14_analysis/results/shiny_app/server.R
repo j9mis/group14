@@ -97,6 +97,8 @@ server <- function(input, output, session) {
                 data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }
         }
+        numCount <- as.character(nrow(data))
+        output$text <- renderText(paste0("Number of points on the map: ", numCount))
         leaflet(data) %>%
             addTiles() %>% addMarkers(~long, ~lat, popup = 
                                           paste("Name: ", as.character(data$person_name), " (", as.character(data$gender), ")",
