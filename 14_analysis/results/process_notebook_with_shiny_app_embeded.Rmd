@@ -370,6 +370,14 @@ nrow(filter(data, is.na(in_majority)))/nrow(data)
 Our shiny application has two main builit in features. The first feature it offers to the user is an interactive map. This map shows the location of every single police killing that had occured in 2015. Each point on the map represents a person that was killed, and clicking on a point will bring up a popup that gives information about the deceased, as well as a few background facts about the area in which the killing occured. This map has an additional feature that gives the user the ability to filter points based on certain criteria. They can find those who were killed that were of a given race, those that has a knife, etc. There is also the ability to filter by multiple criteria simulaneously. This allows the user to see people who fit into a given interaection of criteria.    
 The second feature offered by the application is the ability to build several bar plots. The user is able select a variable they would like to investigate, and the application generates a bar plot counting the number of killings for each value the variable contains. The user can then further customize the plot by breaking up the bars shown by gender. This allows them to see the gender makeup of each criteria so they may get a better feel for the distribution.
 
+## Additional Findings
+
+Based on the Shiny application, we were able to find several interesting things. One such finding was made in the bar plot generator. We initially only investigated the total number of counts per variable. However, we decided to further invesigate the effects of normailizing the population. Here is the plot that we created where we counted the number of deaths per race:
+![](https://ibb.co/nOrNWQ)
+And here is another graph that we created where we counted the number of deaths per million people of each race and plotted those numbers:
+![](https://ibb.co/b2g0J5)
+
+
 ```{r, echo = FALSE}
 shinyApp(
     
