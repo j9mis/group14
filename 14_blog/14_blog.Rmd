@@ -49,6 +49,7 @@ Course Website: https://idc9.github.io/stor390/
   In addition, we created a boxplot to help us understand the range of victims ages per death type. We can observe that the death type, struck by vehicle, had the highest average age and greatest range of age. Police killing by gunshot had majority of ages between 25 and 50 with the lowest average age among all death types. 
   
 #Plot 7 Analysis
+
   To answer our question, of "Is a certain time of the year more likely to experience police killings than others?", we observed from our plot below (last plot), that most of the months in the year 2015 have close to the same amount of police killings except the month of December. The later months of the summer tend to have a high rate of police killings. July had the most at 122 while December had the least at only 14. 
  
 #Shiny App Analysis
