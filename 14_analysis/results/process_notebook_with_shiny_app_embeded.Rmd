@@ -365,30 +365,18 @@ nrow(filter(data, is.na(in_majority)))/nrow(data)
 
 
 # Shiny Application 
-
-
-Our shiny application has two main builit in features. The first feature it offers to the user is an interactive map. This map shows the location of every single police killing that had occured in 2015. Each point on the map represents a person that was killed, and clicking on a point will bring up a popup that gives information about the deceased, as well as a few background facts about the area in which the killing occured. This map has an additional feature that gives the user the ability to filter points based on certain criteria. They can find those who were killed that were of a given race, those that has a knife, etc. There is also the ability to filter by multiple criteria simulaneously. This allows the user to see people who fit into a given interaection of criteria.    
-The second feature offered by the application is the ability to build several bar plots. The user is able select a variable they would like to investigate, and the application generates a bar plot counting the number of killings for each value the variable contains. The user can then further customize the plot by breaking up the bars shown by gender. This allows them to see the gender makeup of each criteria so they may get a better feel for the distribution.
-
-## Additional Findings
-
-Based on the Shiny application, we were able to find several interesting things. One such finding was made in the bar plot generator. We initially only investigated the total number of counts per variable. However, we decided to further invesigate the effects of normailizing the population. Here is the plot that we created where we counted the number of deaths per race:    
-![](https://preview.ibb.co/k4y2WQ/plot1.png)     
-And here is another graph that we created where we counted the number of deaths per million people of each race and plotted those numbers:      
-![](https://preview.ibb.co/jcwpBQ/plot1.png)      
-
-
 ```{r, echo = FALSE}
 shinyApp(
     
-  ui = fluidPage(
+  
+ui <- fluidPage(
     titlePanel("People Killed by Police in 2015"),
-    div(p("Over 1,000 people in the United States were killed by police in 2015. Explore these incidents."),
-        tabsetPanel( 
-            tabPanel("Map of Incidents", p("Select one or more varibles to filter the data by. Click on points on the map to see information about an incident."),
+    div( p("Over 1,000 people in the United States were killed by police in 2015. Explore these incidents."),
+        tabsetPanel(
+            tabPanel("Map of Incidents",p("Select one or more varibles to filter the data by. Click on points on the map to see information about an incident."),
                      sidebarLayout(
                          sidebarPanel(
-                             selectInput("variable1Selector", label = h4("Select variable to filter"), 
+                             selectInput("variable1Selector", label = h4("Select Variable to filter on"), 
                                          choices = list("Select a variable" = "none","Median Income" = "median_household_Income",
                                                         "Percent age 25+ Highschool Graduates or Higher" = "percent_25_or_older_HighSchool_grads",
                                                         "Race/Ethnicity" = "raceethnicity", "Month" = "month",
@@ -455,9 +443,9 @@ shinyApp(
                                  condition = ("input.variable3Selector != 'median_household_Income' &&
                                       input.variable3Selector !=  'percent_25_or_older_HighSchool_grads'"),
                                  selectInput("factor3Selector", label = "Select Value to filter on", choices = list())
-                             )
+                             ), width = 4
                          ),
-                         mainPanel(leafletOutput("mymap"))
+                         mainPanel(leafletOutput("mymap"), textOutput("text"))
                      )  
             ),
             
@@ -478,9 +466,11 @@ shinyApp(
         ), class = "span12"
     )
 )
+
+
 ,
   
-  server = function(input, output, session) {
+  server <- function(input, output, session) {
     dataframe <- read_csv('14_data_3.csv') 
     dataframe <- mutate(dataframe, median_household_Income = as.numeric(median_household_Income))
     dataframe <- mutate(dataframe, percent_25_or_older_HighSchool_grads = as.numeric(percent_25_or_older_HighSchool_grads))
@@ -530,6 +520,7 @@ shinyApp(
                 val1 = as.numeric(input$householdIncome1[1])
                 val2 = as.numeric(input$householdIncome1[2])
                 data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }else if (var == "percent_25_or_older_HighSchool_grads"){
                 val1 = as.numeric(input$grad1[1])
                 val2 = as.numeric(input$grad1[2])
@@ -546,6 +537,7 @@ shinyApp(
                 val1 = as.numeric(input$householdIncome2[1])
                 val2 = as.numeric(input$householdIncome2[2])
                 data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }else if (var == "percent_25_or_older_HighSchool_grads"){
                 val1 = as.numeric(input$grad2[1])
                 val2 = as.numeric(input$grad2[2])
@@ -562,6 +554,7 @@ shinyApp(
                 val1 = as.numeric(input$householdIncome3[1])
                 val2 = as.numeric(input$householdIncome3[2])
                 data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }else if (var == "percent_25_or_older_HighSchool_grads"){
                 val1 = as.numeric(input$grad3[1])
                 val2 = as.numeric(input$grad3[2])
@@ -569,9 +562,13 @@ shinyApp(
                 data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }
         }
+        
+        numCount <- as.character(nrow(data))
+        output$text <- renderText(paste0("Number of points on the map: ", numCount))
         leaflet(data) %>%
             addTiles() %>% addMarkers(~long, ~lat, popup = 
-                                          paste("Armed with: ", as.character(data$armed),
+                                          paste("Name: ", as.character(data$person_name), " (", as.character(data$gender), ")",
+                                                "<br>Armed with: ", as.character(data$armed),
                                                 "<br>Age: ", as.character(data$age),
                                                 "<br>Race: ", as.character(data$raceethnicity),
                                                 "<br>Date of incident: ", as.character(data$month), " ",
@@ -579,6 +576,8 @@ shinyApp(
                                                 "<br>Median Income: ", as.character(data$median_household_Income),
                                                 "<br>Highshcool grad rate: ", as.character(data$percent_25_or_older_HighSchool_grads)))
     })
+    
+    
     observe({
         x <- quote(input$variable1Selector)
         if (input$variable1Selector != "none"){
@@ -670,10 +669,7 @@ shinyApp(
         }
         
     })
-}
-
-,
-  
-  options = list(height = 1500)
+  }
 )
 ```
+
