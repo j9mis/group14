@@ -3,9 +3,9 @@ library(leaflet)
 
 ui <- fluidPage(
     titlePanel("People Killed by Police in 2015"),
-    div(p("Over 1,000 people in the United States were killed by police in 2015. Explore these incidents."),
-        tabsetPanel( 
-            tabPanel("Map of Incidents", p("Select one or more varibles to filter the data by. Click on points on the map to see information about an incident."),
+    div(
+        tabsetPanel(
+            tabPanel("Map of Incidents",
                      sidebarLayout(
                          sidebarPanel(
                              selectInput("variable1Selector", label = h4("Select Variable to filter on"), 
@@ -75,7 +75,7 @@ ui <- fluidPage(
                                  condition = ("input.variable3Selector != 'median_household_Income' &&
                                       input.variable3Selector !=  'percent_25_or_older_HighSchool_grads'"),
                                  selectInput("factor3Selector", label = "Select Value to filter on", choices = list())
-                             )
+                             ), width = 4
                          ),
                          mainPanel(leafletOutput("mymap"), textOutput("text"))
                      )  

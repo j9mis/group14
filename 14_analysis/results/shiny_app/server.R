@@ -58,6 +58,7 @@ server <- function(input, output, session) {
                 val1 = as.numeric(input$householdIncome1[1])
                 val2 = as.numeric(input$householdIncome1[2])
                 data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }else if (var == "percent_25_or_older_HighSchool_grads"){
                 val1 = as.numeric(input$grad1[1])
                 val2 = as.numeric(input$grad1[2])
@@ -74,6 +75,7 @@ server <- function(input, output, session) {
                 val1 = as.numeric(input$householdIncome2[1])
                 val2 = as.numeric(input$householdIncome2[2])
                 data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }else if (var == "percent_25_or_older_HighSchool_grads"){
                 val1 = as.numeric(input$grad2[1])
                 val2 = as.numeric(input$grad2[2])
@@ -90,6 +92,7 @@ server <- function(input, output, session) {
                 val1 = as.numeric(input$householdIncome3[1])
                 val2 = as.numeric(input$householdIncome3[2])
                 data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }else if (var == "percent_25_or_older_HighSchool_grads"){
                 val1 = as.numeric(input$grad3[1])
                 val2 = as.numeric(input$grad3[2])
@@ -97,6 +100,7 @@ server <- function(input, output, session) {
                 data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
             }
         }
+        
         numCount <- as.character(nrow(data))
         output$text <- renderText(paste0("Number of points on the map: ", numCount))
         leaflet(data) %>%
@@ -110,6 +114,8 @@ server <- function(input, output, session) {
                                                 "<br>Median Income: ", as.character(data$median_household_Income),
                                                 "<br>Highshcool grad rate: ", as.character(data$percent_25_or_older_HighSchool_grads)))
     })
+    
+    
     observe({
         x <- quote(input$variable1Selector)
         if (input$variable1Selector != "none"){
