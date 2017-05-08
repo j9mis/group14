@@ -335,8 +335,11 @@ nrow(filter(data, is.na(in_majority)))/nrow(data)
 
 # Final Analysis 
 
-Our main goal of this project was to allow people to explore data about incidents in which people lost their lives at the hands of US police. We wanted to learn about who police killed in 2015 and about the locations in which these incidents occured without making inferences or predictions. Through exploring the data, we noted how certain groups of people are killed disproportionately more than others in 2015. The plots and figures detailed above *may* suggest that people of certain age groups, genders, races, and areas are more likely to be killed than others. The dataset only covered one year and contained a littl over 1000 data points so it would be irresponsible to make any strong assumptions or assertions about police killings. Since the topic of race and police is so touchy, we created a shiny application to present data to readers with the hopes that they will gather the own valuable insights. 
-
+Our main goal of this project was to allow people to explore data about incidents in which people lost their lives at the hands of US police. We wanted to learn about who police killed in 2015 and about the locations in which these incidents occured without making inferences or predictions. Through exploring the data, we noted how certain groups of people are killed disproportionately more than others in 2015. The plots and figures detailed above *may* suggest that people of certain age groups, genders, races, and areas are more likely to be killed than others. The dataset only covered one year and contained a littl over 1000 data points so it would be irresponsible to make any strong assumptions or assertions about police killings. Since the topic of race and police is so touchy, we created a shiny application to present data to readers with the hopes that they will gather the own valuable insights.    
+Based on the Shiny application, we were able to find a few interesting things. One such finding was made in the bar plot generator. We initially only investigated the total number of counts per variable. However, we decided to further invesigate the effects of normailizing the population. Here is the plot that we created where we counted the number of deaths per race:    
+ +![](https://preview.ibb.co/k4y2WQ/plot1.png)     
+ +And here is another graph that we created where we counted the number of deaths per million people of each race and plotted those numbers:      
+ +![](https://preview.ibb.co/jcwpBQ/plot1.png)      
 
 ## Shiny Application
   
