@@ -149,7 +149,7 @@ server <- function(input, output, session) {
         if (xval == "normalizedrace"){
             ggplot(race_count) + geom_bar(aes(x = raceethnicity, y = per_million), stat="identity", fill = 16, color = "black")  +
                 theme(axis.text.x = element_text(angle = 60, hjust = 1), panel.background = element_blank()) + 
-                labs(y = "Police Killings per Million in 2015")
+                labs(x = "race/ethnicity", y = "Police Killings per Million in 2015")
         } else {
             if (input$genderCheck == FALSE){
                 if (xval == 'age'){
@@ -168,20 +168,26 @@ server <- function(input, output, session) {
                     ggplot(dataframe) + geom_histogram(aes_string(x=xval), binwidth = 8000, fill = 16, color = "black") +
                         theme(axis.text.x = element_text(angle = 60, hjust = 1), 
                               panel.background = element_blank()) + 
-                        labs(y = "Number of Police Killings in 2015")
+                        labs(x = "median household income", y = "Number of Police Killings in 2015")
+                }else if (xval == 'percent_25_or_older_HighSchool_grads'){
+                    ggplot(dataframe) + geom_histogram(aes_string(x=xval), binwidth = 3, fill = 16, color = "black") +
+                    theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                          panel.background = element_blank()) + 
+                    labs(x = "percent of people age 25+ with highschool degree", y = "Number of Police Killings in 2015")
                 }else{
                     ggplot(dataframe) + geom_bar(aes_string(x=xval), fill = 16, color = "black") +
                         theme(axis.text.x = element_text(angle = 60, hjust = 1), 
                               panel.background = element_blank())+ 
-                        labs(y = "Number of Police Killings in 2015")
+                        labs(x = str_replace(xval, "_", " "), y = "Number of Police Killings in 2015")
                 }
             }else{
-                if ((xval == "raceethnicity") || (xval == "in_majority")||(xval == "is_armed")||(xval == "armed")){
+                if ((xval == "raceethnicity") || (xval == "in_majority")||(xval == "is_armed")
+                    ||(xval == "armed")){
                     ggplot(dataframe) + geom_histogram(aes_string(x=xval, fill = 'gender'), stat = "count", color = "black") +
                         scale_fill_manual(values = c('hotpink', 'blue', 'green')) +
                         theme(axis.text.x = element_text(angle = 60, hjust = 1), 
                               panel.background = element_blank())+ 
-                        labs(y = "Number of Police Killings in 2015")
+                        labs(x= str_replace(xval, "_", " "), y = "Number of Police Killings in 2015")
                 }else if (xval == "age"){
                     ggplot(dataframe) + geom_histogram(aes_string(x=xval, fill = 'gender'), binwidth = 3, color = "black") +
                         scale_fill_manual(values = c('hotpink', 'blue', 'green')) +
@@ -196,12 +202,17 @@ server <- function(input, output, session) {
                               panel.background = element_blank())+ 
                         scale_x_discrete(labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+
                         scale_fill_manual(values = c('hotpink', 'blue', 'green')) 
+                }else if (xval == 'percent_25_or_older_HighSchool_grads'){
+                    ggplot(dataframe) + geom_histogram(aes_string(x=xval, fill = "gender"), binwidth = 3, color = "black") +
+                        theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                              panel.background = element_blank()) + scale_fill_manual(values = c('hotpink', 'blue', 'green'))+
+                        labs(x = "percent of people age 25+ with highschool degree", y = "Number of Police Killings in 2015")
                 }else if (xval == "median_household_Income"){
                     ggplot(dataframe) + geom_histogram(aes_string(x=xval, fill = "gender"), binwidth = 8000, color = "black") +
                         scale_fill_manual(values = c('hotpink', 'blue', 'green')) +
                         theme(axis.text.x = element_text(angle = 60, hjust = 1), 
                               panel.background = element_blank()) + 
-                        labs(y = "Number of Police Killings in 2015")
+                        labs(x = "median household income", y = "Number of Police Killings in 2015")
                 }
             }
         }

@@ -28,7 +28,7 @@ ui <- fluidPage(
                                  condition = ("input.variable1Selector != 'median_household_Income' &&
                                               input.variable1Selector !=  'percent_25_or_older_HighSchool_grads'"),
                                  selectInput("factor1Selector", label = "Select Value to filter on", choices = list())
-                             ),
+                                 ),
                              
                              
                              
@@ -52,7 +52,7 @@ ui <- fluidPage(
                                  condition = ("input.variable2Selector != 'median_household_Income' &&
                                               input.variable2Selector !=  'percent_25_or_older_HighSchool_grads'"),
                                  selectInput("factor2Selector", label = "Select Value to filter on", choices = list())
-                             ),
+                                 ),
                              
                              
                              selectInput("variable3Selector", label = h4("Select Variable to filter on"), 
@@ -73,13 +73,13 @@ ui <- fluidPage(
                              ),
                              conditionalPanel(
                                  condition = ("input.variable3Selector != 'median_household_Income' &&
-                                      input.variable3Selector !=  'percent_25_or_older_HighSchool_grads'"),
+                                              input.variable3Selector !=  'percent_25_or_older_HighSchool_grads'"),
                                  selectInput("factor3Selector", label = "Select Value to filter on", choices = list())
-                             ), width = 4
+                                 ), width = 4
                          ),
                          mainPanel(leafletOutput("mymap"), textOutput("text"))
-                     )  
-            ),
+                             )  
+                         ),
             
             
             tabPanel("Interactive Plots", plotOutput("myplots"),
@@ -88,7 +88,8 @@ ui <- fluidPage(
                                                 "Race/Ethnicity Normalized" = "normalizedrace",
                                                 "Median Household Income" = "median_household_Income",
                                                 "Month" = "month", "In Majority" = "in_majority",
-                                                "Is Armed" = "is_armed","Armed with:" = "armed", "Age" = "age"),
+                                                "Is Armed" = "is_armed","Armed with:" = "armed", "Age" = "age",
+                                                "Highschool Graduation Rate"= "percent_25_or_older_HighSchool_grads"),
                                  selected = 1),
                      conditionalPanel(
                          condition = ("input.xvalue !=  'normalizedrace'"),
