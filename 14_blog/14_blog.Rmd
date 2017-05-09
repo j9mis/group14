@@ -69,7 +69,7 @@ library(tidyverse)
 library(readr)
 
 
-data <- read_csv("14_data.csv")
+data <- read_csv("14_data_3.csv")
 ```
 
 
