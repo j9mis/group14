@@ -75,7 +75,7 @@ data <- read_csv("14_data_3.csv")
 
 
 #Plot 1
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning = FALSE}
 
 data_age <- na.omit(select(data,age))
 ggplot(data_age) + geom_histogram(aes(x=age), fill = "#FF9999", color = "black", binwidth = 4) + 
