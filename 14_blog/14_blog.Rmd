@@ -10,8 +10,7 @@ Course Website: https://idc9.github.io/stor390/
  
 #Dataset Analysis
  
-  Therefore, for our project, our group found data on 538's github page detailing a list of police killings as well as various pieces of background regarding the demographic and economic status of the location of incidents. We started out by analyzing the data and found that we overlooked that the data set only covered half of the year 2015. We then found a full data set from the Guardian that had information about all the killings in 2015, but lacked any background information other than location of incidents. We used those location of incidents provided by the original data set and the Google geocoding APIs to gather information about the county that the incidents occurred in. Furthermore, we also used the National Broadband Map Census API, distributed by the Federal Communications Commission, to provide us information about the corresponding census tract. Once we had the county and tract info appended to the data set, we could use the census API to pull information from the 2015 census. We used an API to get information about each state and then joined it to our original data by a join matching the county and tract. We then added information about the median household income, the race proportions, and the educational attainment for the locations of each incident to our data set. However, we found that about 50 out of 1055 observations did not have county matches in the Google API, so were initially unable to gather census data for these. Due to this lack of information, we decided to hand code in the county variable for these 50 observations in to our data. 
-We further supplemented our data by adding a region variable, a binary “is_armed” variable, a date variable, and an “in_majority” variable that states whether or not the victim was in the racial majority. 
+  Therefore, for our project, our group found data on 538's github page detailing a list of police killings as well as various pieces of background regarding the demographic and economic status of the location of incidents. We started out by analyzing the data and found that we overlooked that the data set only covered half of the year 2015. We then found a full data set from the Guardian that had information about all the killings in 2015, but lacked any background information other than location of incidents. We used those location of incidents provided by the original data set and the Google geocoding APIs to gather information about the county that the incidents occured in. Furthermor, we also used the National Broadband Map Census API, distributed by the Federal Communications Commission, to provide us information about the corresponding census tract. Once we had the county and tract info appended to the data set, we could use the census API to pull information from the 2015 census. We used an API to get information abotu each state and then joined it to our original data by a join matching the county and tract. We then added information about the median household income, the race proportions, and the educational attainment for the locations of each incident to our data set. However, we found that about 50 out of 1055 observations did not have county matches in the Google API, so we do not have census data for these. We plan to later investigate this problem more thoroughly. We added a region variable, a binary is_armed variable, a date variable, and an in_majority variable. 
   
 #Questions
 
@@ -27,11 +26,11 @@ We further supplemented our data by adding a region variable, a binary “is_arm
   
   5. Is a certain time of the year more likely to experience police killings than others? 
   
-  6. Does race and age have an effect on whether the victim was armed? 
+  6. Does race and age have an affect on whether the victim was armed? 
 
 #Plot 1 Analysis
 
-  To further explore and analyze some of these questions, we created plots and a shiny app which illustrates a map that locates each incident with a pin mark. Clicking on a map marker in the shiny app gives you information regarding the victim about their name, age, and date of death. The user can also further filter the data points on the map in regards to certain variables contained in the data set. The application also has the capability to create a variety of bar plots in the using the data set. In regards to the plots, we wanted to analyze the distribution of the victim ages by creating a histogram of the age count for all victims. We found that the distribution was slightly skewed to the right indicating that younger individuals may be more likely to be involved and killed by police. A visualization of this histogram is the first plot below. 
+  To further explore and analyze some of these questions, we created plots and a shiny app which illustrates a map that locates each incident with a pin mark. Clicking on a map marker in the shiny app gives you information regarding the victim about their name, age, and date of death. In regards to the plots, we wanted to analyze the distribution of the victim ages by creating a histogram of the age count for all victims. We found that the distribution was slightly skewed to the right indicating that younger individuals may be more likely to be involved and killed by police. A visualization of this histogram is the first plot below. 
 
 #Plot 2/3 Analysis
 
@@ -47,19 +46,18 @@ We further supplemented our data by adding a region variable, a binary “is_arm
   
 #Plot 6 Analysis
 
-  In addition, we created a boxplot to help us understand the range of victim’s ages per death type. We can observe that the death type, struck by vehicle, had the highest average age and greatest range of age. Police killing by gunshot had majority of ages between 25 and 50 with the lowest average age among all death types. 
+  In addition, we created a boxplot to help us understand the range of victims ages per death type. We can observe that the death type, struck by vehicle, had the highest average age and greatest range of age. Police killing by gunshot had majority of ages between 25 and 50 with the lowest average age among all death types. 
   
 #Plot 7 Analysis
-
   To answer our question, of "Is a certain time of the year more likely to experience police killings than others?", we observed from our plot below (last plot), that most of the months in the year 2015 have close to the same amount of police killings except the month of December. The later months of the summer tend to have a high rate of police killings. July had the most at 122 while December had the least at only 14. 
  
 #Shiny App Analysis
 
-  Our shiny application has two main built in features. The first feature it offers to the user is an interactive map. This map shows the location of every single police killing that had occurred in 2015. Each point on the map represents a person that was killed, and clicking on a point will bring up a popup that gives information about the deceased, as well as a few background facts about the area in which the killing occurred. This map has an additional feature that gives the user the ability to filter points based on certain criteria. They can find those who were killed that were of a given race, those that has a knife, etc. The user can filter the data that appears on the map by one to three attributes, allowing them to view incidents that fit a combination of different criteria. The second feature offered by the application is the ability to build several bar plots. The user is able select a variable they would like to investigate, and the application generates a bar plot counting the number of killings for each value the variable contains. The user can then further customize the plot by breaking up the bars shown by gender. This allows them to see the gender makeup of each criteria so they may get a better feel for the distribution.
+  Our shiny application has two main built in features. The first feature it offers to the user is an interactive map. This map shows the location of every single police killing that had occured in 2015. Each point on the map represents a person that was killed, and clicking on a point will bring up a popup that gives information about the deceased, as well as a few background facts about the area in which the killing occured. This map has an additional feature that gives the user the ability to filter points based on certain criteria. They can find those who were killed that were of a given race, those that has a knife, etc. The user can filter the data that appears on the map by one to three attributes, allowing them to view incidents that fit a combination of different criteria. The second feature offered by the application is the ability to build several bar plots. The user is able select a variable they would like to investigate, and the application generates a bar plot counting the number of killings for each value the variable contains. The user can then further customize the plot by breaking up the bars shown by gender. This allows them to see the gender makeup of each criteria so they may get a better feel for the distribution.
 
 #Conclusion
 
-Overall, our main goal of this project was to allow people to explore data about incidents in which people lost their lives at the hands of US police. We wanted to learn about who the police killed in 2015 and about the locations in which these incidents occurred without making inferences or predictions. Through exploring the data, we noted how certain groups of people are killed disproportionately more than others in 2015. The plots and figures detailed below may suggest that people of certain age groups, genders, races, and areas are more likely to be killed than others. The dataset only covered one year and contained a little over 1000 data points so it would be irresponsible to make any strong assumptions or assertions about police killings. Since the topic of race and police is so sensitive, we created our shiny application to present data to the American public with the hopes that they will gather their own valuable insights.
+Overall, our main goal of this project was to allow people to explore data about incidents in which people lost their lives at the hands of US police. We wanted to learn about who the police killed in 2015 and about the locations in which these incidents occured without making inferences or predictions. Through exploring the data, we noted how certain groups of people are killed disproportionately more than others in 2015. The plots and figures detailed below may suggest that people of certain age groups, genders, races, and areas are more likely to be killed than others. The dataset only covered one year and contained a little over 1000 data points so it would be irresponsible to make any strong assumptions or assertions about police killings. Since the topic of race and police is so sensitive, we created our shiny application to present data to the American public with the hopes that they will gather their own valuable insights.
 
 #Appendix
 
@@ -70,14 +68,16 @@ library(tidyverse)
 library(readr)
 
 
-data <- read_csv("14_data_3.csv")
+data1 <- read_csv("14_data.csv")
+data <- read_csv('14_data_3.csv')
+
 ```
 
 
 #Plot 1
-```{r, echo = FALSE, warning = FALSE}
+```{r, echo = FALSE}
 
-data_age <- na.omit(select(data,age))
+data_age <- na.omit(select(data1,age))
 ggplot(data_age) + geom_histogram(aes(x=age), fill = "#FF9999", color = "black", binwidth = 4) + 
     ggtitle('Police Killings by Age') + labs(x = 'Age', y = '# of people killed by police') +
     theme(panel.background = element_blank(), 
@@ -94,7 +94,7 @@ ggplot(data_age) + geom_histogram(aes(x=age), fill = "#FF9999", color = "black",
 #Plot 2
 ```{r, echo = FALSE}
 
-race_count <- data %>% group_by(raceethnicity) %>% count()
+race_count <- data1 %>% group_by(raceethnicity) %>% count()
 ggplot(race_count) + geom_bar(aes(x=raceethnicity, y=n), stat = "identity", fill="#FF9999") + 
     theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
           panel.background = element_blank()) +
@@ -105,7 +105,7 @@ ggplot(race_count) + geom_bar(aes(x=raceethnicity, y=n), stat = "identity", fill
 
 #Plot 3
 ```{r, echo = FALSE }
-race_count <- data %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
+race_count <- data1 %>% filter(is_armed==0) %>% group_by(raceethnicity) %>% count()
 ggplot(race_count) + geom_bar(aes(x=raceethnicity, y=n), stat = "identity", fill="#FF9999") + 
     theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1), axis.line = element_line(colour = "black", size=.1),
           panel.background = element_blank()) +
@@ -118,8 +118,8 @@ ggplot(race_count) + geom_bar(aes(x=raceethnicity, y=n), stat = "identity", fill
 
 #Plot 4
 ```{r ,warning=FALSE,, echo = FALSE}
-avgGrad <- data %>% group_by(state) %>% summarise(avgPercentHighSchoolGrad = mean(as.numeric(percent_25_or_older_HighSchool_grads), na.rm = TRUE))
-stateCount <- data %>% group_by(state) %>% summarise(DeathsPerState = n())
+avgGrad <- data1 %>% group_by(state) %>% summarise(avgPercentHighSchoolGrad = mean(as.numeric(percent_25_or_older_HighSchool_grads), na.rm = TRUE))
+stateCount <- data1 %>% group_by(state) %>% summarise(DeathsPerState = n())
 gradsCount <- left_join(stateCount, avgGrad, by = c('state' = 'state'))
 
 
@@ -134,7 +134,7 @@ ggplot(gradsCount) +
 
 #Plot 5
 ```{r, echo = FALSE}
-region_count <- data %>% group_by(region) %>% count()
+region_count <- data1 %>% group_by(region) %>% count()
 ggplot(region_count) + 
     geom_bar(aes(x=region, y=n), stat = "identity", fill="#FF9999") + 
     ggtitle('Police Killings by Region') +
@@ -146,15 +146,15 @@ ggplot(region_count) +
 
 #Plot 6
 ```{r, warning=FALSE, echo = FALSE}
-Death_Type <- factor(data$classification)
-ggplot(data) + geom_boxplot(aes(x=classification, y=age, fill = Death_Type)) + ggtitle('Boxplot of Age per Death Type') +
+Death_Type <- factor(data1$classification)
+ggplot(data1) + geom_boxplot(aes(x=classification, y=age, fill = Death_Type)) + ggtitle('Boxplot of Age per Death Type') +
 labs(x = 'Death Type', y = 'Age') + 
 scale_x_discrete(limit = c("Death in custody", "Gunshot", "Struck by vehicle", "Taser"))
 ```
 
 #Plot 7
 ```{r, echo = FALSE}
-date_count <- data %>% group_by(month_num) %>% count()
+date_count <- data1 %>% group_by(month_num) %>% count()
 ggplot(date_count) + 
     geom_bar(aes(x=month_num, y=n), stat = "identity", fill="#FF9999") + 
     ggtitle('Police Killings in 2015') +
@@ -163,4 +163,318 @@ ggplot(date_count) +
           panel.background = element_blank()) +
     scale_x_discrete(labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) + geom_text(aes(x=month_num,y=n, label=n), hjust=0.5, vjust=-.5, colour="red") 
 ```
+
+#Shiny App
+
+```{r, echo = FALSE}
+
+shinyApp(
+    
+  
+ui <- fluidPage(
+    titlePanel("People Killed by Police in 2015"),
+    div( p("Over 1,000 people in the United States were killed by police in 2015. Explore these incidents."),
+        tabsetPanel(
+            tabPanel("Map of Incidents",p("Select one or more varibles to filter the data by. Click on points on the map to see information about an incident."),
+                     sidebarLayout(
+                         sidebarPanel(
+                             selectInput("variable1Selector", label = h4("Select Variable to filter on"), 
+                                         choices = list("Select a variable" = "none","Median Income" = "median_household_Income",
+                                                        "Percent age 25+ Highschool Graduates or Higher" = "percent_25_or_older_HighSchool_grads",
+                                                        "Race/Ethnicity" = "raceethnicity", "Month" = "month",
+                                                        "Armed with:" = "armed", "In Majority" = "in_majority", "Is Armed (TRUE/FALSE)" = "is_armed"),
+                                         selected = 1),
+                             conditionalPanel(
+                                 condition = "input.variable1Selector == 'median_household_Income'",
+                                 sliderInput("householdIncome1", "Median Household Income Range:", 
+                                             min=0, max=150000, value=c(30000,60000), step = 1000)
+                             ),
+                             conditionalPanel(
+                                 condition = "input.variable1Selector == 'percent_25_or_older_HighSchool_grads'",
+                                 sliderInput("grad1", "Decimal:", 
+                                             min = 0, max = 100, value = c(0,100), step= 1)
+                             ),
+                             conditionalPanel(
+                                 condition = ("input.variable1Selector != 'median_household_Income' &&
+                                              input.variable1Selector !=  'percent_25_or_older_HighSchool_grads'"),
+                                 selectInput("factor1Selector", label = "Select Value to filter on", choices = list())
+                             ),
+                             
+                             
+                             
+                             selectInput("variable2Selector", label = h4("Select Variable to filter on"), 
+                                         choices = list("Select a variable" = "none", "Median Income" = "median_household_Income",
+                                                        "Percent age 25+ Highschool Graduates or Higher" = "percent_25_or_older_HighSchool_grads",
+                                                        "Race/Ethnicity" = "raceethnicity", "Month" = "month",
+                                                        "Armed with:" = "armed", "In Majority" = "in_majority", "Is Armed (TRUE/FALSE)" = "is_armed"),
+                                         selected = 1),
+                             conditionalPanel(
+                                 condition = "input.variable2Selector == 'median_household_Income'",
+                                 sliderInput("householdIncome2", "Median Household Income Range:", 
+                                             min=0, max=150000, value=c(30000,60000), step = 1000)
+                             ),
+                             conditionalPanel(
+                                 condition = "input.variable2Selector == 'percent_25_or_older_HighSchool_grads'",
+                                 sliderInput("grad2", "Decimal:", 
+                                             min = 0, max = 100, value = c(0,100), step= 1)
+                             ),
+                             conditionalPanel(
+                                 condition = ("input.variable2Selector != 'median_household_Income' &&
+                                              input.variable2Selector !=  'percent_25_or_older_HighSchool_grads'"),
+                                 selectInput("factor2Selector", label = "Select Value to filter on", choices = list())
+                             ),
+                             
+                             
+                             selectInput("variable3Selector", label = h4("Select Variable to filter on"), 
+                                         choices = list("Select a variable" = "none", "Median Income" = "median_household_Income",
+                                                        "Percent age 25+ Highschool Graduates or Higher" = "percent_25_or_older_HighSchool_grads",
+                                                        "Race/Ethnicity" = "raceethnicity", "Month" = "month",
+                                                        "Armed with:" = "armed", "In Majority" = "in_majority", "Is Armed (TRUE/FALSE)" = "is_armed"),
+                                         selected = 1),
+                             conditionalPanel(
+                                 condition = "input.variable3Selector == 'median_household_Income'",
+                                 sliderInput("householdIncome3", "Median Household Income Range:", 
+                                             min=0, max=150000, value=c(30000,60000), step = 1000)
+                             ),
+                             conditionalPanel(
+                                 condition = "input.variable3Selector == 'percent_25_or_older_HighSchool_grads'",
+                                 sliderInput("grad3", "Decimal:", 
+                                             min = 0, max = 100, value = c(0,100), step= 1)
+                             ),
+                             conditionalPanel(
+                                 condition = ("input.variable3Selector != 'median_household_Income' &&
+                                      input.variable3Selector !=  'percent_25_or_older_HighSchool_grads'"),
+                                 selectInput("factor3Selector", label = "Select Value to filter on", choices = list())
+                             ), width = 4
+                         ),
+                         mainPanel(leafletOutput("mymap"), textOutput("text"))
+                     )  
+            ),
+            
+            
+            tabPanel("Interactive Plots", plotOutput("myplots"),
+                     selectInput("xvalue", label = h4("Select variable to create plot"),
+                                 choices = list("Race/Ethnicity" = "raceethnicity", 
+                                                "Race/Ethnicity Normalized" = "normalizedrace",
+                                                "Median Household Income" = "median_household_Income",
+                                                "Month" = "month", "In Majority" = "in_majority",
+                                                "Is Armed" = "is_armed","Armed with:" = "armed", "Age" = "age"),
+                                 selected = 1),
+                     conditionalPanel(
+                         condition = ("input.xvalue !=  'normalizedrace'"),
+                         checkboxInput("genderCheck", "Show genders", TRUE)
+                     )
+            )
+        ), class = "span12"
+    )
+)
+
+
+,
+  
+  server <- function(input, output, session) {
+    dataframe <- read_csv('14_data_3.csv') 
+    dataframe <- mutate(dataframe, median_household_Income = as.numeric(median_household_Income))
+    dataframe <- mutate(dataframe, percent_25_or_older_HighSchool_grads = as.numeric(percent_25_or_older_HighSchool_grads))
+    names(dataframe)[names(dataframe) == 'name'] <- 'person_name'
+    dataframe <- mutate(dataframe, is_armed = as.logical(is_armed))
+    date_count <-  dataframe %>% group_by(month) %>% count()
+    date_count_gender <-  dataframe %>% group_by(month,gender) %>% count()
+    
+    pop_2015 <-  321418820
+    
+    asian_share <-  0.056
+    black_share <-  0.133
+    hispanic_share <-  0.176
+    native_share <-  0.012
+    white_share <-  0.616
+    
+    per_million_counts <- function(race_count){
+        race_count$per_million <- NA
+        for (i in 1:nrow(race_count)){
+            if (race_count$raceethnicity[i] == "Asian/Pacific Islander"){
+                race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Asian/Pacific Islander"])*1000000)/(pop_2015*asian_share)
+            } else if (race_count$raceethnicity[i] == "Black"){
+                race_count$per_million[i] =     ((race_count$n[race_count$raceethnicity=="Black"])*1000000)/(pop_2015*black_share)
+            } else if (race_count$raceethnicity[i] == "Hispanic/Latino"){
+                race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="Hispanic/Latino"])*1000000)/(pop_2015*hispanic_share)
+            } else if (race_count$raceethnicity[i] == "Native American"){
+                race_count$per_million[i] =
+                    ((race_count$n[race_count$raceethnicity=="Native American"])*1000000)/(pop_2015*native_share)
+            } else if (race_count$raceethnicity[i] == "White"){
+                race_count$per_million[i] = ((race_count$n[race_count$raceethnicity=="White"])*1000000)/(pop_2015*white_share)
+            } else race_count$per_million[i] = NA
+        }
+        return(race_count)
+    }
+    
+    race_count <- dataframe %>% group_by(raceethnicity) %>% count()
+    race_count <- per_million_counts(race_count)
+    
+    output$mymap <- renderLeaflet({
+        data <- dataframe
+        var <- input$variable1Selector
+        if (var != "none"){
+            if ((var != "median_household_Income") && (var != "percent_25_or_older_HighSchool_grads")){
+                val <- input$factor1Selector
+                data <- data %>% filter_(interp(quote(column == value), column = as.name(var), value = val))
+            }else if (var == "median_household_Income"){
+                val1 = as.numeric(input$householdIncome1[1])
+                val2 = as.numeric(input$householdIncome1[2])
+                data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
+            }else if (var == "percent_25_or_older_HighSchool_grads"){
+                val1 = as.numeric(input$grad1[1])
+                val2 = as.numeric(input$grad1[2])
+                data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
+            }
+        }
+        var  <- input$variable2Selector
+        if (var != "none"){
+            if ((var != "median_household_Income") && (var != "percent_25_or_older_HighSchool_grads")){
+                val <- input$factor2Selector
+                data <- data %>% filter_(interp(quote(column == value), column = as.name(var), value = val))
+            }else if (var == "median_household_Income"){
+                val1 = as.numeric(input$householdIncome2[1])
+                val2 = as.numeric(input$householdIncome2[2])
+                data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
+            }else if (var == "percent_25_or_older_HighSchool_grads"){
+                val1 = as.numeric(input$grad2[1])
+                val2 = as.numeric(input$grad2[2])
+                data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
+            }
+        }
+        var  <- input$variable3Selector
+        if (var != "none"){
+            if ((var != "median_household_Income") && (var != "percent_25_or_older_HighSchool_grads")){
+                val <- input$factor3Selector
+                data <- data %>% filter_(interp(quote(column == value), column = as.name(var), value = val))
+            }else if (var == "median_household_Income"){
+                val1 = as.numeric(input$householdIncome3[1])
+                val2 = as.numeric(input$householdIncome3[2])
+                data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
+            }else if (var == "percent_25_or_older_HighSchool_grads"){
+                val1 = as.numeric(input$grad3[1])
+                val2 = as.numeric(input$grad3[2])
+                data <- data %>% filter_(interp(quote(column >= value), column = as.name(var), value = val1))
+                data <- data %>% filter_(interp(quote(column <= value), column = as.name(var), value = val2))
+            }
+        }
+        
+        numCount <- as.character(nrow(data))
+        output$text <- renderText(paste0("Number of points on the map: ", numCount))
+        leaflet(data) %>%
+            addTiles() %>% addMarkers(~long, ~lat, popup = 
+                                          paste("Name: ", as.character(data$person_name), " (", as.character(data$gender), ")",
+                                                "<br>Armed with: ", as.character(data$armed),
+                                                "<br>Age: ", as.character(data$age),
+                                                "<br>Race: ", as.character(data$raceethnicity),
+                                                "<br>Date of incident: ", as.character(data$month), " ",
+                                                as.character(dataframe$day), ", ", as.character(data$year),
+                                                "<br>Median Income: ", as.character(data$median_household_Income),
+                                                "<br>Highshcool grad rate: ", as.character(data$percent_25_or_older_HighSchool_grads)))
+    })
+    
+    
+    observe({
+        x <- quote(input$variable1Selector)
+        if (input$variable1Selector != "none"){
+            factors <- unique(dataframe[,eval(x)])
+            updateSelectInput(session, "factor1Selector",
+                              choices = factors,
+                              selected = tail(factors, 1)
+            )
+        }
+        x2 <- quote(input$variable2Selector)
+        if (input$variable2Selector != "none"){
+            factors <- unique(dataframe[,eval(x2)])
+            updateSelectInput(session, "factor2Selector",
+                              choices = factors,
+                              selected = tail(factors, 1)
+            )
+        }
+        if (input$variable3Selector != "none"){
+            x3 <- quote(input$variable3Selector)
+            factors <- unique(dataframe[,eval(x3)])
+            updateSelectInput(session, "factor3Selector",
+                              choices = factors,
+                              selected = tail(factors, 1)
+            )
+        }
+    })
+    
+    
+    output$myplots <- renderPlot({
+        xval <- input$xvalue
+        if (xval == "normalizedrace"){
+            ggplot(race_count) + geom_bar(aes(x = raceethnicity, y = per_million), stat="identity", fill = 16, color = "black")  +
+                theme(axis.text.x = element_text(angle = 60, hjust = 1), panel.background = element_blank()) + 
+                labs(y = "Police Killings per Million in 2015")
+        } else {
+            if (input$genderCheck == FALSE){
+                if (xval == 'age'){
+                    ggplot(dataframe) + geom_histogram(aes_string(x=xval), binwidth = 3, fill = 16, color = "black") +
+                        theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                              panel.background = element_blank()) + 
+                        labs(y = "Number of Police Killings in 2015")
+                }else if (xval == 'month'){
+                    ggplot(date_count) + geom_bar(aes(x=month, y=n), stat = "identity", fill = 16, color = "black") + 
+                        ggtitle('Police Killings in 2015') +
+                        labs(x = 'Month', y = '# of people killed by police') + 
+                        theme(axis.line = element_line(colour = "black", size=.1), 
+                              panel.background = element_blank()) +
+                        scale_x_discrete(labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+                }else if (xval == "median_household_Income"){
+                    ggplot(dataframe) + geom_histogram(aes_string(x=xval), binwidth = 8000, fill = 16, color = "black") +
+                        theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                              panel.background = element_blank()) + 
+                        labs(y = "Number of Police Killings in 2015")
+                }else{
+                    ggplot(dataframe) + geom_bar(aes_string(x=xval), fill = 16, color = "black") +
+                        theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                              panel.background = element_blank())+ 
+                        labs(y = "Number of Police Killings in 2015")
+                }
+            }else{
+                if ((xval == "raceethnicity") || (xval == "in_majority")||(xval == "is_armed")||(xval == "armed")){
+                    ggplot(dataframe) + geom_histogram(aes_string(x=xval, fill = 'gender'), stat = "count", color = "black") +
+                        scale_fill_manual(values = c('hotpink', 'blue', 'green')) +
+                        theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                              panel.background = element_blank())+ 
+                        labs(y = "Number of Police Killings in 2015")
+                }else if (xval == "age"){
+                    ggplot(dataframe) + geom_histogram(aes_string(x=xval, fill = 'gender'), binwidth = 3, color = "black") +
+                        scale_fill_manual(values = c('hotpink', 'blue', 'green')) +
+                        theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                              panel.background = element_blank())+ 
+                        labs(y = "Number of Police Killings in 2015")
+                }else if (xval == 'month'){
+                    ggplot(date_count_gender) + geom_bar(aes(x=month, y=n, fill = gender), stat = "identity", color = "black") + 
+                        ggtitle('Police Killings in 2015') +
+                        labs(x = 'Month', y = '# of people killed by police') + 
+                        theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                              panel.background = element_blank())+ 
+                        scale_x_discrete(labels=c("Jan","Feb","Mar","Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+
+                        scale_fill_manual(values = c('hotpink', 'blue', 'green')) 
+                }else if (xval == "median_household_Income"){
+                    ggplot(dataframe) + geom_histogram(aes_string(x=xval, fill = "gender"), binwidth = 8000, color = "black") +
+                        scale_fill_manual(values = c('hotpink', 'blue', 'green')) +
+                        theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+                              panel.background = element_blank()) + 
+                        labs(y = "Number of Police Killings in 2015")
+                }
+            }
+        }
+        
+    })
+  }
+)
+
+
+```
+
 
